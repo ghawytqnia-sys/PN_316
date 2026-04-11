@@ -13,12 +13,13 @@
 //  🔥 FIREBASE CONFIG — استبدل هذه القيم بإعدادات مشروعك
 // ============================================================
 const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAeYCJBkvY-hKdeBoq_zWDr8p8ElbCHRKE",
+  authDomain: "pn316-df6f3.firebaseapp.com",
+  projectId: "pn316-df6f3",
+  storageBucket: "pn316-df6f3.firebasestorage.app",
+  messagingSenderId: "146162971635",
+  appId: "1:146162971635:web:83ead2737cddded1639886"
+  measurementId: "G-DM6YCESS39"
 };
 
 // ============================================================
