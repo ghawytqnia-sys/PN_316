@@ -932,8 +932,6 @@ function generateOrderId() {
   // النتيجة ستكون مثل: BAN-2604-8842
 }
 
-
-
 async function uploadToCloudinary(file) {
   const cloudName = "YOUR_CLOUD_NAME"; // استبدله باسم حسابك
   const uploadPreset = "YOUR_PRESET";   // استبدله بالـ Preset الخاص بك
@@ -980,3 +978,5 @@ window.getLocation = () => {
     );
 };
 
+
+});
