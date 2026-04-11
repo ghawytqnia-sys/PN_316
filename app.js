@@ -932,6 +932,15 @@ function generateOrderId() {
   // النتيجة ستكون مثل: BAN-2604-8842
 }
 
+function generateOrderNumber() {
+    const now = new Date();
+    const prefix = "BN"; // اختصار بندورة
+    const datePart = now.getFullYear().toString().slice(-2) + (now.getMonth() + 1).toString().padStart(2, '0');
+    const randomPart = Math.floor(1000 + Math.random() * 9000); // 4 أرقام عشوائية
+    return `${prefix}-${datePart}-${randomPart}`;
+}
+
+
 async function uploadToCloudinary(file) {
   const cloudName = "YOUR_CLOUD_NAME"; // استبدله باسم حسابك
   const uploadPreset = "YOUR_PRESET";   // استبدله بالـ Preset الخاص بك
@@ -951,17 +960,30 @@ async function uploadToCloudinary(file) {
 }
 
 window.getLocation = () => {
-  if (navigator.geolocation) {
-    showToast('📍 جاري تحديد موقعك...', 'info');
-    navigator.geolocation.getCurrentPosition((position) => {
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
-      const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-      document.getElementById('shippingAddress').value += `\n📍 موقع الخريطة: ${mapUrl}`;
-      showToast('✅ تم تحديد الموقع بدقة', 'success');
-    });
-  }
+    if (!navigator.geolocation) {
+        showToast("❌ متصفحك لا يدعم تحديد الموقع", "error");
+        return;
+    }
+
+    showToast("📍 جاري تحديد موقعك...", "info");
+    
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+            
+            // وضع الرابط في حقل العنوان تلقائياً
+            const addressInput = document.getElementById('shippingAddress');
+            if(addressInput) {
+                addressInput.value += `\n📍 موقعي على الخريطة: ${googleMapsUrl}`;
+                showToast("✅ تم إضافة موقعك بنجاح", "success");
+            }
+        },
+        (error) => {
+            showToast("❌ يرجى السماح للموقع بالوصول للـ GPS", "error");
+        },
+        { enableHighAccuracy: true }
+    );
 };
 
-
-});
