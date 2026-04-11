@@ -155,7 +155,6 @@ window.dismissInstall = () => {
 //  PRODUCTS
 // ============================================================
 async function loadProducts() {
-  const grid = document.getElementById('productsGrid');
   try {
     const { collection, getDocs, query, orderBy } = window._fs;
     const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
@@ -164,11 +163,11 @@ async function loadProducts() {
     renderProducts(allProducts);
     updateHeroStats();
   } catch (err) {
-    console.warn("Products load error:", err);
-    loadDemoProducts();
+    console.warn("Firebase failed, using demo data:", err);
+    loadDemoProducts(); // الحل الاحتياطي لضمان عدم بقاء الصفحة فارغة
   }
-  hideLoader();
 }
+
 
 function loadDemoProducts() {
   allProducts = [
