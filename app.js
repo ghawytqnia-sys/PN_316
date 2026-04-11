@@ -18,7 +18,7 @@ const FIREBASE_CONFIG = {
   projectId: "pn316-df6f3",
   storageBucket: "pn316-df6f3.firebasestorage.app",
   messagingSenderId: "146162971635",
-  appId: "1:146162971635:web:83ead2737cddded1639886"
+  appId: "1:146162971635:web:83ead2737cddded1639886",
   
 };
 
