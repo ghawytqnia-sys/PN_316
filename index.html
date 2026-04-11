@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>بندورة لاستيراد الاستانلس ستيل</title>
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#c8a96e" />
+  <meta name="description" content="أفضل منتجات الاستانلس ستيل بجودة عالية وأسعار تنافسية" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="بندورة" />
+  <link rel="manifest" href="manifest.json" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="بندورة لاستيراد الاستانلس ستيل" />
+  <meta property="og:description" content="أفضل منتجات الاستانلس ستيل" />
+  <meta property="og:type" content="website" />
+
+  <!-- Fonts + Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    window.__firebaseModules = { initializeApp, getFirestore, getStorage, getAuth };
+  </script>
+</head>
+<body>
+
+<!-- ====== LOADING SCREEN ====== -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-logo">🥘</div>
+  <div class="loader-title">بندورة</div>
+  <div class="loader-bar">
+    <div class="loader-progress"></div>
+  </div>
+</div>
+
+<!-- ====== TOAST CONTAINER ====== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ====== INSTALL BANNER ====== -->
+<div class="install-banner" id="installBanner">
+  <div class="install-text">
+    <div class="install-title">📲 ثبّت التطبيق</div>
+    <div class="install-desc">أضف بندورة لشاشتك الرئيسية</div>
+  </div>
+  <div class="install-actions">
+    <button class="btn-install btn-install-primary" onclick="installApp()">تثبيت</button>
+    <button class="btn-install btn-install-dismiss" onclick="dismissInstall()">لاحقاً</button>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  STORE FRONT PAGE                                            -->
+<!-- ============================================================ -->
+<div id="store-page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="#">
+        <div class="logo-icon">🥘</div>
+        <div class="logo-text">
+          <span class="logo-main">بندورة</span>
+          <span class="logo-sub">الاستانلس ستيل المستورد</span>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="?page=admin" class="nav-btn nav-btn-ghost">🔐 لوحة التحكم</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">✦ جودة عالمية · توصيل سريع</div>
+    <h1>الاستانلس ستيل<br/><span>بأعلى جودة وأفضل سعر</span></h1>
+    <p>نقدم لكم أفخر منتجات الاستانلس ستيل المستوردة مباشرةً، مع ضمان الجودة وخدمة شحن سريعة لجميع المحافظات.</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" id="statProducts">0</span>
+        <span class="stat-label">منتج متاح</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="statOrders">0</span>
+        <span class="stat-label">طلب مكتمل</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">100%</span>
+        <span class="stat-label">ضمان الجودة</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">منتجاتنا</h2>
+      <span class="section-count" id="productsCount">جاري التحميل...</span>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <!-- Products rendered by JS -->
+      <div class="empty-state">
+        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-text">جاري تحميل المنتجات...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-brand">بندورة لاستيراد الاستانلس ستيل</div>
+    <div>© 2024 — جميع الحقوق محفوظة</div>
+  </footer>
+
+</div><!-- /store-page -->
+
+<!-- ============================================================ -->
+<!--  ORDER MODAL                                                  -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="orderModal">
+  <div class="modal" id="orderModalContent">
+
+    <div class="modal-header">
+      <div class="modal-title">🛒 تفاصيل الطلب</div>
+      <button class="modal-close" onclick="closeOrderModal()">✕</button>
+    </div>
+
+    <!-- Product Info -->
+    <div class="modal-product-info" id="modalProductInfo">
+      <div class="modal-product-img" id="modalProductImg">🥘</div>
+      <div class="modal-product-details">
+        <div class="modal-product-name" id="modalProductName">اسم المنتج</div>
+        <div class="modal-product-price" id="modalProductPrice">0 جنيه</div>
+      </div>
+    </div>
+
+    <!-- FORM -->
+    <form class="modal-form" id="orderForm" onsubmit="submitOrder(event)">
+
+      <!-- Customer Data -->
+      <div class="form-section">
+        <div class="form-section-title">👤 بيانات العميل</div>
+
+        <div class="form-group">
+          <label class="form-label">الاسم الكامل <span class="required-star">*</span></label>
+          <input type="text" class="form-input" id="custName" name="name" placeholder="اكتب اسمك الكامل" required />
+          <div class="form-error" id="errName">⚠️ الاسم مطلوب</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">رقم الهاتف 1 <span class="required-star">*</span></label>
+            <input type="tel" class="form-input" id="custPhone1" name="phone1" placeholder="01xxxxxxxxx" required maxlength="11" />
+            <div class="form-error" id="errPhone1">⚠️ رقم هاتف صحيح مطلوب</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الهاتف 2</label>
+            <input type="tel" class="form-input" id="custPhone2" name="phone2" placeholder="اختياري" maxlength="11" />
+          </div>
+        </div>
+
+        <!-- Business Name -->
+        <div class="form-group">
+          <label class="form-label" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+            <input type="checkbox" id="isMerchant" onchange="toggleBusinessName(this)" style="width:16px;height:16px;accent-color:var(--gold);" />
+            <span>أنا تاجر (اختياري)</span>
+          </label>
+          <div class="conditional-field" id="businessField">
+            <input type="text" class="form-input" id="custBusiness" name="business" placeholder="اسم النشاط التجاري" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">عنوان الشحن <span class="required-star">*</span></label>
+          <textarea class="form-input form-textarea" id="custAddress" name="address" placeholder="المحافظة / المنطقة / الشارع / تفاصيل إضافية" rows="3" required></textarea>
+          <div class="form-error" id="errAddress">⚠️ عنوان الشحن مطلوب</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الكمية <span class="required-star">*</span></label>
+            <input type="number" class="form-input" id="custQty" name="qty" placeholder="1" min="1" max="9999" required />
+            <div class="form-error" id="errQty">⚠️ الكمية مطلوبة</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">ملاحظات</label>
+            <input type="text" class="form-input" id="custNotes" name="notes" placeholder="أي ملاحظات إضافية" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="form-section">
+        <div class="form-section-title">💳 وسيلة الدفع</div>
+
+        <div class="payment-options">
+          <div class="payment-option">
+            <input type="radio" name="payment" id="payCash" value="cash" onchange="onPaymentChange('cash')" />
+            <label class="payment-label" for="payCash">
+              <span class="payment-icon">💵</span>
+              <span class="payment-text">كاش عند الاستلام</span>
+            </label>
+          </div>
+          <div class="payment-option">
+            <input type="radio" name="payment" id="payWallet" value="wallet" onchange="onPaymentChange('wallet')" />
+            <label class="payment-label" for="payWallet">
+              <span class="payment-icon">📱</span>
+              <span class="payment-text">محفظة إلكترونية</span>
+            </label>
+          </div>
+          <div class="payment-option">
+            <input type="radio" name="payment" id="payInstapay" value="instapay" onchange="onPaymentChange('instapay')" />
+            <label class="payment-label" for="payInstapay">
+              <span class="payment-icon">⚡</span>
+              <span class="payment-text">InstaPay</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-error" id="errPayment" style="margin-top:8px;">⚠️ اختر وسيلة الدفع</div>
+
+        <!-- Upload receipt (wallet / instapay) -->
+        <div class="conditional-field" id="uploadField" style="margin-top:16px;">
+          <label class="form-label">صورة إيصال الدفع <span class="required-star">*</span></label>
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="receiptFile" accept="image/*" onchange="onReceiptUpload(event)" />
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">اضغط هنا لرفع صورة الإيصال</div>
+            <div class="upload-hint">JPG / PNG — حجم أقصى 5MB</div>
+            <img class="upload-preview" id="uploadPreview" alt="معاينة الإيصال" />
+          </div>
+          <div class="form-error" id="errUpload">⚠️ صورة الإيصال مطلوبة</div>
+        </div>
+
+        <!-- Deposit (cash) -->
+        <div class="conditional-field" id="depositField" style="margin-top:16px;">
+          <label class="form-label">مبلغ جدية الحجز <span class="required-star">*</span></label>
+          <div class="deposit-options">
+            <div class="deposit-option">
+              <input type="radio" name="deposit" id="dep100" value="100" onchange="updateSubmitBtn()" />
+              <label class="deposit-label" for="dep100">💰 100 جنيه</label>
+            </div>
+            <div class="deposit-option">
+              <input type="radio" name="deposit" id="dep200" value="200" onchange="updateSubmitBtn()" />
+              <label class="deposit-label" for="dep200">💰 200 جنيه</label>
+            </div>
+            <div class="deposit-option">
+              <input type="radio" name="deposit" id="dep500" value="500" onchange="updateSubmitBtn()" />
+              <label class="deposit-label" for="dep500">💰 500 جنيه</label>
+            </div>
+            <div class="deposit-option">
+              <input type="radio" name="deposit" id="dep1000" value="1000" onchange="updateSubmitBtn()" />
+              <label class="deposit-label" for="dep1000">💰 1000 جنيه</label>
+            </div>
+          </div>
+          <div class="form-error" id="errDeposit">⚠️ اختر مبلغ جدية الحجز</div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn-submit" id="submitBtn" disabled>
+        <span class="btn-text">✅ إرسال الطلب</span>
+        <span class="btn-spinner"><span class="spinner-icon">⏳</span> جاري الإرسال...</span>
+      </button>
+
+    </form>
+  </div>
+</div>
+
+<!-- ====== SUCCESS MODAL ====== -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="success-modal">
+      <div class="success-icon">✓</div>
+      <div class="success-title">تم استلام طلبك!</div>
+      <div class="success-desc">شكراً لك، سيتم مراجعة طلبك والتواصل معك قريباً.</div>
+      <div class="order-num-badge" id="successOrderNum">رقم الطلب: #000000</div>
+      <button class="btn-submit" style="margin-top:0;" onclick="closeSuccessModal()">العودة للمنتجات</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  ADMIN AUTH PAGE                                             -->
+<!-- ============================================================ -->
+<div id="admin-auth-page" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo">🔐</div>
+    <div class="auth-title">لوحة تحكم الأدمن</div>
+    <div class="auth-sub">تسجيل الدخول للوصول لإدارة الطلبات</div>
+    <form class="auth-form" onsubmit="adminLogin(event)">
+      <div class="form-group">
+        <label class="form-label">البريد الإلكتروني <span class="required-star">*</span></label>
+        <input type="email" class="form-input" id="adminEmail" placeholder="admin@bandora.com" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">كلمة المرور <span class="required-star">*</span></label>
+        <input type="password" class="form-input" id="adminPassword" placeholder="••••••••" required />
+      </div>
+      <div class="form-error" id="authError" style="display:none; margin-bottom:12px;">⚠️ بيانات خاطئة، حاول مرة أخرى</div>
+      <button type="submit" class="btn-auth" id="loginBtn">دخول</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  ADMIN DASHBOARD PAGE                                        -->
+<!-- ============================================================ -->
+<div id="admin-dashboard-page">
+
+  <header class="admin-header">
+    <div class="admin-header-inner">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:22px;">🥘</span>
+        <span style="font-weight:800;font-size:18px;color:var(--gold);">بندورة</span>
+        <span class="admin-badge">لوحة التحكم</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:13px;color:var(--steel);" id="adminEmailDisplay"></span>
+        <button class="btn-logout" onclick="adminLogout()">🚪 خروج</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="admin-stats" id="adminStats">
+    <div class="stat-card gold">
+      <div class="stat-card-icon">📦</div>
+      <div class="stat-card-num" id="statTotal">0</div>
+      <div class="stat-card-label">إجمالي الطلبات</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-card-icon">⏳</div>
+      <div class="stat-card-num" id="statPending">0</div>
+      <div class="stat-card-label">في الانتظار</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-card-icon">✅</div>
+      <div class="stat-card-num" id="statAccepted">0</div>
+      <div class="stat-card-label">مقبولة</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-card-icon">🚚</div>
+      <div class="stat-card-num" id="statShipped">0</div>
+      <div class="stat-card-label">تم الشحن</div>
+    </div>
+    <div class="stat-card red">
+      <div class="stat-card-icon">❌</div>
+      <div class="stat-card-num" id="statRejected">0</div>
+      <div class="stat-card-label">مرفوضة</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('orders', this)">
+      📋 الطلبات <span class="tab-badge" id="tabBadgeOrders">0</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('products', this)">
+      📦 إدارة المنتجات
+    </button>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div class="tab-panel active" id="tab-orders">
+    <div class="orders-section">
+      <!-- Filters -->
+      <div class="orders-filters">
+        <input class="filter-input" id="searchFilter" type="text" placeholder="🔍 بحث بالاسم أو الهاتف..." oninput="filterOrders()" />
+        <select class="filter-select" id="statusFilter" onchange="filterOrders()">
+          <option value="">كل الحالات</option>
+          <option value="pending">في الانتظار</option>
+          <option value="accepted">مقبول</option>
+          <option value="shipped">تم الشحن</option>
+          <option value="rejected">مرفوض</option>
+        </select>
+      </div>
+
+      <!-- Table -->
+      <div class="orders-table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>العميل</th>
+              <th>الهاتف</th>
+              <th>المنتج</th>
+              <th>الكمية</th>
+              <th>الدفع</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <tr>
+              <td colspan="9">
+                <div class="empty-state">
+                  <div class="empty-state-icon">⏳</div>
+                  <div class="empty-state-text">جاري تحميل الطلبات...</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCTS TAB -->
+  <div class="tab-panel" id="tab-products">
+    <div class="add-product-section">
+      <div class="add-product-card">
+        <div class="add-product-title">➕ إضافة منتج جديد</div>
+        <form onsubmit="addProduct(event)" id="addProductForm">
+          <div class="form-group">
+            <label class="form-label">اسم المنتج <span class="required-star">*</span></label>
+            <input type="text" class="form-input" id="pName" placeholder="مثال: طقم أواني استانلس 12 قطعة" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">الوصف</label>
+            <textarea class="form-input form-textarea" id="pDesc" placeholder="وصف مختصر للمنتج" rows="3"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">السعر (جنيه) <span class="required-star">*</span></label>
+              <input type="number" class="form-input" id="pPrice" placeholder="0" min="0" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">الوحدة</label>
+              <input type="text" class="form-input" id="pUnit" placeholder="للقطعة / للطقم" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رابط صورة المنتج (URL)</label>
+            <input type="url" class="form-input" id="pImage" placeholder="https://example.com/image.jpg" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">تصنيف / شارة</label>
+            <input type="text" class="form-input" id="pBadge" placeholder="جديد / الأكثر مبيعاً" />
+          </div>
+          <button type="submit" class="btn-submit" style="margin-top:0;">➕ إضافة المنتج</button>
+        </form>
+      </div>
+
+      <br/>
+
+      <!-- Existing products list -->
+      <div class="add-product-card">
+        <div class="add-product-title">📦 المنتجات الحالية</div>
+        <div id="adminProductsList">
+          <div class="empty-state">
+            <div class="empty-state-icon">📦</div>
+            <div class="empty-state-text">جاري التحميل...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /admin-dashboard-page -->
+
+<!-- ====== ORDER DETAIL MODAL ====== -->
+<div class="modal-overlay" id="orderDetailModal">
+  <div class="modal" style="max-width:680px;">
+    <div class="modal-header">
+      <div class="modal-title">📄 تفاصيل الطلب</div>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div id="orderDetailContent" class="order-detail"></div>
+  </div>
+</div>
+
+<!-- SCRIPT -->
+<script src="app.js"></script>
+</body>
+</html>
