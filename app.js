@@ -932,13 +932,6 @@ function generateOrderId() {
   // النتيجة ستكون مثل: BAN-2604-8842
 }
 
-function generateOrderNumber() {
-    const now = new Date();
-    const prefix = "BN"; // اختصار بندورة
-    const datePart = now.getFullYear().toString().slice(-2) + (now.getMonth() + 1).toString().padStart(2, '0');
-    const randomPart = Math.floor(1000 + Math.random() * 9000); // 4 أرقام عشوائية
-    return `${prefix}-${datePart}-${randomPart}`;
-}
 
 
 async function uploadToCloudinary(file) {
