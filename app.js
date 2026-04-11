@@ -917,4 +917,51 @@ document.addEventListener('keydown', (e) => {
     closeDetailModal();
     window.closeSuccessModal?.();
   }
+  window.toggleTheme = () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  const target = current === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', target);
+  localStorage.setItem('theme', target);
+};
+function generateOrderId() {
+  const date = new Date();
+  const year = date.getFullYear().toString().slice(-2);
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const random = Math.floor(1000 + Math.random() * 9000); // 4 أرقام عشوائية
+  return `BAN-${year}${month}-${random}`; 
+  // النتيجة ستكون مثل: BAN-2604-8842
+}
+
+async function uploadToCloudinary(file) {
+  const cloudName = "YOUR_CLOUD_NAME"; // استبدله باسم حسابك
+  const uploadPreset = "YOUR_PRESET";   // استبدله بالـ Preset الخاص بك
+  
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", uploadPreset);
+  // إضافة وسوم للضغط التلقائي وتحسين الجودة
+  formData.append("transformation", "f_auto,q_auto,w_1000"); 
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: "POST",
+    body: formData
+  });
+  const data = await res.json();
+  return data.secure_url;
+}
+
+window.getLocation = () => {
+  if (navigator.geolocation) {
+    showToast('📍 جاري تحديد موقعك...', 'info');
+    navigator.geolocation.getCurrentPosition((position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const mapUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+      document.getElementById('shippingAddress').value += `\n📍 موقع الخريطة: ${mapUrl}`;
+      showToast('✅ تم تحديد الموقع بدقة', 'success');
+    });
+  }
+};
+
+
 });
