@@ -19,7 +19,7 @@ const FIREBASE_CONFIG = {
   storageBucket: "pn316-df6f3.firebasestorage.app",
   messagingSenderId: "146162971635",
   appId: "1:146162971635:web:83ead2737cddded1639886",
-  
+  measurementId: "G-DM6YCESS39"
 };
 
 // ============================================================
@@ -88,28 +88,28 @@ async function initFirebase() {
 //  INIT APP
 // ============================================================
 window.addEventListener('DOMContentLoaded', async () => {
-  // Determine page mode
   const urlParams = new URLSearchParams(window.location.search);
   isAdminMode = urlParams.get('page') === 'admin';
 
-  // Init Firebase
-  const firebaseReady = await initFirebase();
+  try {
+    const firebaseReady = await initFirebase();
 
-  if (!firebaseReady) {
-    // Show demo mode without Firebase
-    console.warn("Running in DEMO mode — Firebase not configured.");
-    loadDemoProducts();
-    hideLoader();
-    if (isAdminMode) showAdminPage();
-    return;
-  }
-
-  if (isAdminMode) {
-    showAdminPage();
-    monitorAuthState();
-  } else {
-    loadProducts();
-    hideLoader();
+    if (!firebaseReady) {
+      console.warn("Running in DEMO mode.");
+      loadDemoProducts();
+    } else {
+      if (isAdminMode) {
+        showAdminPage();
+        monitorAuthState();
+      } else {
+        await loadProducts(); // انتظر تحميل المنتجات
+      }
+    }
+  } catch (error) {
+    console.error("Initialization error:", error);
+    loadDemoProducts(); // في حال حدوث خطأ، اعرض بيانات تجريبية
+  } finally {
+    hideLoader(); // سيتم إخفاء الشاشة في كل الحالات (نجاح أو فشل)
   }
 
   // PWA Install
