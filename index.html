@@ -1,516 +1,1631 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>نقطة البيع — بندورة للأكسسوارات</title>
 
-  <title>بندورة لاستيراد الاستانلس ستيل</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
-  <!-- PWA Meta -->
-  <meta name="theme-color" content="#c8a96e" />
-  <meta name="description" content="أفضل منتجات الاستانلس ستيل بجودة عالية وأسعار تنافسية" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="بندورة" />
-  <link rel="manifest" href="manifest.json" />
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 
-  <!-- Open Graph -->
-  <meta property="og:title" content="بندورة لاستيراد الاستانلس ستيل" />
-  <meta property="og:description" content="أفضل منتجات الاستانلس ستيل" />
-  <meta property="og:type" content="website" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-  <!-- Fonts + Icons -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#F5F6F8; --surface:#FFFFFF; --ink:#1B2430; --ink-soft:#5C6B7A; --line:#E4E8EC;
+  --brand:#B23A2E; --brand-dark:#8C2C22; --brand-soft:#FBEAE7;
+  --gold:#C9932C; --gold-soft:#FBF2DF;
+  --success:#1E8A5F; --success-soft:#E6F5EE;
+  --warn:#C77C11; --warn-soft:#FBF0DE;
+  --danger:#C4392B; --danger-soft:#FBEAE7;
+  --radius-sm:8px; --radius:14px; --radius-lg:20px;
+  --shadow:0 1px 2px rgba(20,25,35,.04),0 8px 24px -12px rgba(20,25,35,.12);
+  --shadow-lg:0 16px 40px -16px rgba(20,25,35,.28);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;overflow-x:hidden;}
+body{font-family:'Tajawal','Cairo',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4{font-family:'Cairo',sans-serif;margin:0;}
+button{font-family:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+::-webkit-scrollbar{width:8px;} ::-webkit-scrollbar-thumb{background:#CBD2D9;border-radius:20px;}
 
-  <!-- CSS -->
-  <link rel="stylesheet" href="style.css" />
+/* ---------- login ---------- */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(1200px 600px at 20% -10%,#3A0E0A 0%,transparent 60%),radial-gradient(1000px 500px at 100% 110%,#4a1108 0%,transparent 55%),#17110F;padding:20px;}
+.login-card{width:100%;max-width:380px;background:#fff;border-radius:var(--radius-lg);padding:34px 28px;box-shadow:var(--shadow-lg);text-align:center;}
+.login-logo{width:60px;height:60px;border-radius:15px;margin:0 auto 14px;background:linear-gradient(135deg,var(--brand),var(--brand-dark));display:flex;align-items:center;justify-content:center;color:#fff;font-size:26px;box-shadow:0 10px 24px -8px rgba(178,58,46,.55);}
+.login-card h1{font-size:20px;font-weight:800;}
+.login-card p.sub{color:var(--ink-soft);font-size:13px;margin-bottom:22px;}
+.field{text-align:right;margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--ink-soft);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;font-size:15px;background:#FAFBFC;outline:none;transition:.15s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand);background:#fff;box-shadow:0 0 0 3px var(--brand-soft);}
+.btn{border:none;border-radius:11px;padding:13px 18px;font-weight:700;font-size:14.5px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s;}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:0 8px 18px -6px rgba(178,58,46,.5);}
+.btn-primary:hover{background:var(--brand-dark);}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;}
+.btn-block{width:100%;} .btn-lg{padding:15px 20px;font-size:16px;}
+.btn-ghost{background:#F1F3F5;color:var(--ink-soft);}
+.btn-success{background:var(--success);color:#fff;}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-outline{background:transparent;border:1.5px solid var(--line);color:var(--ink);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-sm{padding:8px 12px;font-size:12.5px;border-radius:8px;}
+.login-error{background:var(--danger-soft);color:var(--danger);padding:10px;border-radius:9px;font-size:13px;margin-bottom:14px;display:none;font-weight:600;}
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    window.__firebaseModules = { initializeApp, getFirestore, getStorage, getAuth };
-  </script>
+/* ---------- app shell ---------- */
+#appShell{display:none;min-height:100vh;padding-bottom:96px;}
+.topbar{background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar .brand{display:flex;align-items:center;gap:10px;}
+.topbar .brand .mark{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--gold));display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+.topbar .brand b{font-size:14.5px;display:block;}
+.topbar .brand small{color:var(--ink-soft);font-size:11px;}
+.sync-indicator{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:12px;background:#FAFBFC;border:1px solid var(--line);color:var(--ink-soft);}
+.sync-indicator.online{background:var(--success-soft);color:var(--success);border-color:#c8edd9;}
+.sync-indicator.offline{background:var(--danger-soft);color:var(--danger);border-color:#fad4cf;}
+
+.page{max-width:640px;margin:0 auto;padding:16px 14px 30px;}
+.tab-section{display:none;} .tab-section.active{display:block;animation:fadein .2s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* Mode Tabs Segmented Control */
+.mode-segmented-wrap{background:#E9ECEF;padding:4px;border-radius:14px;display:flex;gap:4px;margin-bottom:14px;}
+.mode-tab-btn{flex:1;border:none;background:transparent;padding:11px 10px;border-radius:10px;font-weight:800;font-size:14px;color:var(--ink-soft);transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px;}
+.mode-tab-btn.active{background:#fff;color:var(--brand);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;z-index:60;box-shadow:0 -6px 20px -12px rgba(0,0,0,.15);}
+.bottom-nav button{flex:1;background:none;border:none;padding:10px 4px 8px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink-soft);font-size:11px;font-weight:700;}
+.bottom-nav button i{font-size:18px;}
+.bottom-nav button.active{color:var(--brand);}
+
+.card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:14px;}
+.card h3{font-size:15px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.card h3 i{color:var(--brand);}
+.autocomplete-wrap{position:relative;}
+.ac-list{position:absolute;top:calc(100% + 4px);right:0;left:0;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow-lg);max-height:240px;overflow-y:auto;z-index:80;display:none;}
+.ac-item{padding:11px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13.5px;border-bottom:1px solid #F1F3F5;cursor:pointer;}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover{background:var(--brand-soft);}
+.ac-item b{font-weight:700;} .ac-item small{color:var(--ink-soft);}
+.stock-note{font-size:12px;color:var(--ink-soft);margin-top:5px;}
+.stock-note.err{color:var(--danger);font-weight:700;}
+.price-display{background:var(--brand-soft);color:var(--brand-dark);border-radius:10px;padding:10px 14px;font-weight:800;font-size:15px;text-align:center;margin-top:8px;}
+
+/* Visual Thumbnail Preview Card */
+.prod-preview-card{
+  display:flex;align-items:center;gap:12px;background:#FAFBFC;border:1.5px solid var(--line);
+  border-radius:12px;padding:10px 12px;margin:10px 0;transition:.15s;
+}
+.prod-preview-thumb{
+  width:64px;height:64px;border-radius:10px;object-fit:cover;cursor:pointer;
+  border:1px solid #D6DCE1;background:#fff;flex-shrink:0;transition:transform .15s;
+}
+.prod-preview-thumb:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.prod-preview-info{flex:1;}
+.prod-preview-info b{display:block;font-size:13.5px;color:var(--ink);}
+.prod-preview-info small{color:var(--ink-soft);font-size:11.5px;display:block;margin-top:2px;}
+.prod-preview-zoom-tip{font-size:10.5px;color:var(--brand);font-weight:700;margin-top:3px;cursor:pointer;}
+
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F1F3F5;gap:8px;}
+.cart-item:last-child{border-bottom:none;}
+.cart-item .ci-info b{display:block;font-size:13.5px;} .cart-item .ci-info small{color:var(--ink-soft);font-size:11.5px;}
+.cart-item .ci-qty{display:flex;align-items:center;gap:6px;}
+.cart-item .ci-qty button{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#fff;font-weight:800;}
+.cart-item .ci-qty span{min-width:20px;text-align:center;font-weight:700;}
+.cart-item .ci-total{font-weight:800;color:var(--brand);min-width:70px;text-align:left;}
+.cart-item .ci-remove{background:none;border:none;color:var(--danger);font-size:15px;}
+
+.total-bar{background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;border-radius:var(--radius);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;margin:14px 0;box-shadow:0 10px 24px -10px rgba(178,58,46,.5);}
+.total-bar .lbl{font-size:13px;opacity:.9;} .total-bar .val{font-size:24px;font-weight:800;}
+
+/* Online Financial Breakdown */
+.online-calc-box{background:#FAFBFC;border:1.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px;}
+.online-calc-row{display:flex;justify-content:space-between;font-size:13.5px;padding:5px 0;}
+.online-calc-row.remaining{border-top:1px dashed var(--line);padding-top:8px;margin-top:6px;font-size:15px;font-weight:800;color:var(--brand);}
+
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.summary-card{background:#fff;border-radius:12px;padding:14px;box-shadow:var(--shadow);}
+.summary-card .val{font-size:19px;font-weight:800;} .summary-card .lbl{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+
+.sale-row{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:13px 14px;margin-bottom:9px;font-size:13px;border-right:4px solid transparent;}
+.sale-row.status-pending-review{border-right-color:var(--gold);}
+.sale-row.status-approved{border-right-color:var(--success);}
+.sale-row.status-returned{border-right-color:var(--danger);}
+.sale-row .top{display:flex;justify-content:space-between;font-weight:700;margin-bottom:4px;}
+.sale-row .mid{color:var(--ink-soft);font-size:12px;}
+.sale-row .bottom{display:flex;justify-content:space-between;align-items:center;margin-top:6px;color:var(--ink-soft);font-size:11.5px;}
+
+.empty-state{text-align:center;padding:40px 16px;color:var(--ink-soft);}
+.empty-state i{font-size:34px;color:#D6DCE1;margin-bottom:10px;display:block;}
+.skeleton{background:linear-gradient(90deg,#F1F3F5 25%,#E6E9EC 37%,#F1F3F5 63%);background-size:400% 100%;animation:sk 1.4s infinite;border-radius:10px;height:60px;margin-bottom:9px;}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+.filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.filter-bar select,.filter-bar input{padding:9px 11px;border:1.5px solid var(--line);border-radius:9px;font-size:12.5px;background:#FAFBFC;flex:1;min-width:110px;}
+.chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.chip{padding:7px 13px;border-radius:20px;background:#F1F3F5;color:var(--ink-soft);font-size:12px;font-weight:700;border:none;cursor:pointer;}
+.chip.active{background:var(--brand);color:#fff;}
+
+/* Quotation Alert for Online */
+.quotation-alert{background:#FFF3CD;color:#856404;border:1px solid #FFEEBA;padding:12px;border-radius:10px;font-size:12.5px;line-height:1.6;font-weight:700;margin-bottom:12px;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(17,12,10,.6);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(2px);}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:20px 20px 0 0;max-width:540px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+@media(min-width:640px){.modal-overlay{align-items:center;} .modal{border-radius:20px;}}
+.modal-head{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:2;}
+.modal-head h3{font-size:15.5px;font-weight:800;}
+.modal-body{padding:18px;}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--line);display:flex;gap:10px;flex-wrap:wrap;}
+.modal-close{background:none;border:none;font-size:18px;color:var(--ink-soft);}
+
+/* Lightbox Modal */
+#imageLightboxModal .modal{max-width:440px;background:#fff;border-radius:20px;text-align:center;}
+#imageLightboxModal img{width:100%;max-height:65vh;object-fit:contain;border-radius:12px;background:#000;}
+
+#toastHost{position:fixed;bottom:90px;left:14px;right:14px;z-index:500;display:flex;flex-direction:column;gap:8px;align-items:center;}
+.toast{background:#1B2430;color:#fff;padding:12px 16px;border-radius:11px;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:9px;box-shadow:var(--shadow-lg);max-width:420px;width:100%;justify-content:center;}
+.toast.success{background:var(--success);} .toast.error{background:var(--danger);} .toast.warn{background:var(--warn);}
+
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.75);z-index:400;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.show{display:flex;}
+.spinner{width:40px;height:40px;border:4px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+#sellerReader{width:100%;border-radius:12px;overflow:hidden;background:#000;min-height:220px;}
+.hidden{display:none!important;}
+.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-gold{background:var(--gold-soft);color:var(--gold);} .badge-brand{background:var(--brand-soft);color:var(--brand);}
+.badge-warn{background:var(--warn-soft);color:var(--warn);}
+.badge-success{background:var(--success-soft);color:var(--success);}
+.badge-review{background:#FFF3CD;color:#856404;border:1px solid #FFEEBA;}
+.badge-approved{background:#D4EDDA;color:#155724;border:1px solid #C3E6CB;}
+
+.app-copyright{text-align:center;padding:16px 10px 6px;color:#A0AEC0;font-size:12px;font-weight:600;}
+</style>
 </head>
 <body>
 
-<!-- ====== LOADING SCREEN ====== -->
-<div class="loading-overlay" id="loadingOverlay">
-  <div class="loader-logo">🥘</div>
-  <div class="loader-title">بندورة</div>
-  <div class="loader-bar">
-    <div class="loader-progress"></div>
-  </div>
-</div>
-
-<!-- ====== TOAST CONTAINER ====== -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- ====== INSTALL BANNER ====== -->
-<div class="install-banner" id="installBanner">
-  <div class="install-text">
-    <div class="install-title">📲 ثبّت التطبيق</div>
-    <div class="install-desc">أضف بندورة لشاشتك الرئيسية</div>
-  </div>
-  <div class="install-actions">
-    <button class="btn-install btn-install-primary" onclick="installApp()">تثبيت</button>
-    <button class="btn-install btn-install-dismiss" onclick="dismissInstall()">لاحقاً</button>
-  </div>
-</div>
-
-<!-- ============================================================ -->
-<!--  STORE FRONT PAGE                                            -->
-<!-- ============================================================ -->
-<div id="store-page">
-
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-inner">
-      <a class="logo" href="#">
-        <div class="logo-icon">🥘</div>
-        <div class="logo-text">
-          <span class="logo-main">بندورة</span>
-          <span class="logo-sub">الاستانلس ستيل المستورد</span>
-        </div>
-      </a>
-      <nav class="header-nav">
-        <a href="?page=admin" class="nav-btn nav-btn-ghost">🔐 لوحة التحكم</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-badge">✦ جودة عالمية · توصيل سريع</div>
-    <h1>الاستانلس ستيل<br/><span>بأعلى جودة وأفضل سعر</span></h1>
-    <p>نقدم لكم أفخر منتجات الاستانلس ستيل المستوردة مباشرةً، مع ضمان الجودة وخدمة شحن سريعة لجميع المحافظات.</p>
-    <div class="hero-stats">
-      <div class="stat-item">
-        <span class="stat-num" id="statProducts">0</span>
-        <span class="stat-label">منتج متاح</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num" id="statOrders">0</span>
-        <span class="stat-label">طلب مكتمل</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-num">100%</span>
-        <span class="stat-label">ضمان الجودة</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- PRODUCTS -->
-  <section class="section">
-    <div class="section-header">
-      <h2 class="section-title">منتجاتنا</h2>
-      <span class="section-count" id="productsCount">جاري التحميل...</span>
-    </div>
-    <div class="products-grid" id="productsGrid">
-      <!-- Products rendered by JS -->
-      <div class="empty-state">
-        <div class="empty-state-icon">⏳</div>
-        <div class="empty-state-text">جاري تحميل المنتجات...</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-<footer class="vip-footer">
-  <div class="footer-container">
-    <div class="footer-about">
-      <h3 class="footer-logo">بندورة ⚜️</h3>
-      <p>المورد الرئيسي لإكسسوارات الاستانلس ستيل جملة. ضمان ضد تغير اللون وشحن لكل مصر.</p>
-    </div>
-    
-    <div class="footer-social">
-      <a href="https://t.me/PN_Accessories316" class="social-icon telegram"><i class="fab fa-telegram-plane"></i></a>
-      <a href="https://www.facebook.com/share/1AknJDPHJY/" class="social-icon facebook"><i class="fab fa-facebook-f"></i></a>
-      <a href="https://wa.me/201055037191" class="social-icon whatsapp"><i class="fab fa-whatsapp"></i></a>
-      <a href="#" class="social-icon tiktok"><i class="fab fa-tiktok"></i></a>
-    </div>
-
-    <div class="footer-info">
-      <p><i class="fas fa-map-marker-alt"></i> حارة اليهود - الموسكي - مكتب بندورة</p>
-      <p><i class="fas fa-subway"></i> أقرب محطة: باب الشعرية</p>
-    </div>
-  </div>
-
-    <div>© 2026 — جميع الحقوق محفوظة</div>
-  </footer>
-
-</div><!-- /store-page -->
-
-<!-- ============================================================ -->
-<!--  ORDER MODAL                                                  -->
-<!-- ============================================================ -->
-<div class="modal-overlay" id="orderModal">
-  <div class="modal" id="orderModalContent">
-
-    <div class="modal-header">
-      <div class="modal-title">🛒 تفاصيل الطلب</div>
-      <button class="modal-close" onclick="closeOrderModal()">✕</button>
-    </div>
-
-    <!-- Product Info -->
-    <div class="modal-product-info" id="modalProductInfo">
-      <div class="modal-product-img" id="modalProductImg">🥘</div>
-      <div class="modal-product-details">
-        <div class="modal-product-name" id="modalProductName">اسم المنتج</div>
-        <div class="modal-product-price" id="modalProductPrice">0 جنيه</div>
-      </div>
-    </div>
-
-    <!-- FORM -->
-    <form class="modal-form" id="orderForm" onsubmit="submitOrder(event)">
-
-      <!-- Customer Data -->
-      <div class="form-section">
-        <div class="form-section-title">👤 بيانات العميل</div>
-
-        <div class="form-group">
-          <label class="form-label">الاسم الكامل <span class="required-star">*</span></label>
-          <input type="text" class="form-input" id="custName" name="name" placeholder="اكتب اسمك الكامل" required />
-          <div class="form-error" id="errName">⚠️ الاسم مطلوب</div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">رقم الهاتف 1 <span class="required-star">*</span></label>
-            <input type="tel" class="form-input" id="custPhone1" name="phone1" placeholder="01xxxxxxxxx" required maxlength="11" />
-            <div class="form-error" id="errPhone1">⚠️ رقم هاتف صحيح مطلوب</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">رقم الهاتف 2</label>
-            <input type="tel" class="form-input" id="custPhone2" name="phone2" placeholder="اختياري" maxlength="11" />
-          </div>
-        </div>
-
-        <!-- Business Name -->
-        <div class="form-group">
-          <label class="form-label" style="cursor:pointer; display:flex; align-items:center; gap:10px; margin-bottom:10px;">
-            <input type="checkbox" id="isMerchant" onchange="toggleBusinessName(this)" style="width:16px;height:16px;accent-color:var(--gold);" />
-            <span>أنا تاجر (اختياري)</span>
-          </label>
-          <div class="conditional-field" id="businessField">
-            <input type="text" class="form-input" id="custBusiness" name="business" placeholder="اسم النشاط التجاري" />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">عنوان الشحن <span class="required-star">*</span></label>
-          <textarea class="form-input form-textarea" id="custAddress" name="address" placeholder="المحافظة / المنطقة / الشارع / تفاصيل إضافية" rows="3" required></textarea>
-          <div class="form-error" id="errAddress">⚠️ عنوان الشحن مطلوب</div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">الكمية <span class="required-star">*</span></label>
-            <input type="number" class="form-input" id="custQty" name="qty" placeholder="1" min="1" max="9999" required />
-            <div class="form-error" id="errQty">⚠️ الكمية مطلوبة</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">ملاحظات</label>
-            <input type="text" class="form-input" id="custNotes" name="notes" placeholder="أي ملاحظات إضافية" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Payment Method -->
-      <div class="form-section">
-        <div class="form-section-title">💳 وسيلة الدفع</div>
-
-        <div class="payment-options">
-          <div class="payment-option">
-            <input type="radio" name="payment" id="payCash" value="cash" onchange="onPaymentChange('cash')" />
-            <label class="payment-label" for="payCash">
-              <span class="payment-icon">💵</span>
-              <span class="payment-text">كاش عند الاستلام</span>
-            </label>
-          </div>
-          <div class="payment-option">
-            <input type="radio" name="payment" id="payWallet" value="wallet" onchange="onPaymentChange('wallet')" />
-            <label class="payment-label" for="payWallet">
-              <span class="payment-icon">📱</span>
-              <span class="payment-text">محفظة إلكترونية</span>
-            </label>
-          </div>
-          <div class="payment-option">
-            <input type="radio" name="payment" id="payInstapay" value="instapay" onchange="onPaymentChange('instapay')" />
-            <label class="payment-label" for="payInstapay">
-              <span class="payment-icon">⚡</span>
-              <span class="payment-text">InstaPay</span>
-            </label>
-          </div>
-        </div>
-        <div class="form-error" id="errPayment" style="margin-top:8px;">⚠️ اختر وسيلة الدفع</div>
-
-        <!-- Upload receipt (wallet / instapay) -->
-        <div class="conditional-field" id="uploadField" style="margin-top:16px;">
-          <label class="form-label">صورة إيصال الدفع <span class="required-star">*</span></label>
-          <div class="upload-area" id="uploadArea">
-            <input type="file" id="receiptFile" accept="image/*" onchange="onReceiptUpload(event)" />
-            <div class="upload-icon">📄</div>
-            <div class="upload-text">اضغط هنا لرفع صورة الإيصال</div>
-            <div class="upload-hint">JPG / PNG — حجم أقصى 5MB</div>
-            <img class="upload-preview" id="uploadPreview" alt="معاينة الإيصال" />
-          </div>
-          <div class="form-error" id="errUpload">⚠️ صورة الإيصال مطلوبة</div>
-        </div>
-
-        <!-- Deposit (cash) -->
-        <div class="conditional-field" id="depositField" style="margin-top:16px;">
-          <label class="form-label">مبلغ جدية الحجز <span class="required-star">*</span></label>
-          <div class="deposit-options">
-            <div class="deposit-option">
-              <input type="radio" name="deposit" id="dep100" value="100" onchange="updateSubmitBtn()" />
-              <label class="deposit-label" for="dep100">💰 100 جنيه</label>
-            </div>
-            <div class="deposit-option">
-              <input type="radio" name="deposit" id="dep200" value="200" onchange="updateSubmitBtn()" />
-              <label class="deposit-label" for="dep200">💰 200 جنيه</label>
-            </div>
-            <div class="deposit-option">
-              <input type="radio" name="deposit" id="dep500" value="500" onchange="updateSubmitBtn()" />
-              <label class="deposit-label" for="dep500">💰 500 جنيه</label>
-            </div>
-            <div class="deposit-option">
-              <input type="radio" name="deposit" id="dep1000" value="1000" onchange="updateSubmitBtn()" />
-              <label class="deposit-label" for="dep1000">💰 1000 جنيه</label>
-            </div>
-          </div>
-          <div class="form-error" id="errDeposit">⚠️ اختر مبلغ جدية الحجز</div>
-        </div>
-      </div>
-
-<div class="form-group">
-  <label>إرسال الطلب عبر واتساب إلى:</label>
-  <select id="waNumberSelector" class="form-input">
-    <option value="201055037191">الدعم الفني والطلبات (1)</option>
-    <option value="2010XXXXXXXX">خدمة العملاء (2)</option>
-  </select>
-</div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn-submit" id="submitBtn" disabled>
-        <span class="btn-text">✅ إرسال الطلب</span>
-        <span class="btn-spinner"><span class="spinner-icon">⏳</span> جاري الإرسال...</span>
-      </button>
-
+<!-- ===================== LOGIN ===================== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo"><i class="fa-solid fa-cash-register"></i></div>
+    <h1>بندورة للأكسسوارات</h1>
+    <p class="sub">نظام نقاط البيع — تسجيل دخول البائع</p>
+    <div class="login-error" id="loginError"></div>
+    <form id="loginForm">
+      <div class="field"><label>اسم المستخدم</label><input type="text" id="loginUsername" placeholder="اسم المستخدم" required autocomplete="username"></div>
+      <div class="field"><label>كلمة المرور</label><input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password"></div>
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="loginBtn"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
     </form>
+    <div class="app-copyright" style="margin-top:18px;">Copyright © Abdelmoneim</div>
   </div>
 </div>
 
-<!-- ====== SUCCESS MODAL ====== -->
-<div class="modal-overlay" id="successModal">
+<!-- ===================== APP SHELL ===================== -->
+<div id="appShell">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark"><i class="fa-solid fa-gem"></i></div>
+      <div>
+        <b>بندورة للأكسسوارات</b>
+        <small id="sellerNameLbl">—</small>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span class="sync-indicator online" id="syncStatusBadge"><i class="fa-solid fa-circle" style="font-size:7px;"></i> متصل ومزامن</span>
+      <button class="btn btn-ghost btn-sm" id="logoutBtn" title="تسجيل الخروج"><i class="fa-solid fa-power-off"></i></button>
+    </div>
+  </div>
+
+  <div class="page">
+    <!-- ============ MAIN POS TAB ============ -->
+    <section class="tab-section active" id="tab-invoice">
+      <div class="mode-segmented-wrap">
+        <button type="button" class="mode-tab-btn active" id="tabBtnDirect" data-mode="direct"><i class="fa-solid fa-cash-register"></i> بيع مباشر</button>
+        <button type="button" class="mode-tab-btn" id="tabBtnOnline" data-mode="online"><i class="fa-solid fa-earth-americas"></i> أونلاين</button>
+      </div>
+
+      <!-- Customer Details Card -->
+      <div class="card">
+        <h3 id="customerSecTitle"><i class="fa-solid fa-user"></i> بيانات العميل والبيع المباشر</h3>
+        <div class="field"><label>اسم العميل</label><input type="text" id="c_name" placeholder="اسم العميل"></div>
+        <div class="field"><label>رقم الهاتف الأساسي *</label><input type="tel" id="c_phone1" placeholder="01xxxxxxxxx"></div>
+        <div class="field"><label>رقم هاتف إضافي (اختياري)</label><input type="tel" id="c_phone2" placeholder="اختياري"></div>
+        
+        <div class="field">
+          <label>نوع التسعير</label>
+          <select id="c_type"><option value="retail">قطاعي</option><option value="wholesale">جملة</option></select>
+        </div>
+
+        <div class="field" id="wrap_direct_payment">
+          <label>وسيلة الدفع *</label>
+          <select id="c_payment_direct">
+            <option value="نقدي">نقدي</option>
+            <option value="محفظة إلكترونية">محفظة إلكترونية</option>
+            <option value="إنستاباي">إنستاباي</option>
+            <option value="فيزا / بطاقة">فيزا / بطاقة</option>
+          </select>
+        </div>
+
+        <!-- Online Only Fields -->
+        <div id="wrap_online_fields" class="hidden">
+          <div class="quotation-alert">
+            <i class="fa-solid fa-circle-info"></i> طلبات الأونلاين تصدر كـ «عرض أسعار / طلب قيد المراجعة» ولا تعتبر فاتورة نهائية إلا بعد موافقة الإدارة.
+          </div>
+          <div class="field">
+            <label>وسيلة الدفع المتوقعة *</label>
+            <select id="c_payment_online">
+              <option value="دفع عند الاستلام">1. دفع عند الاستلام</option>
+              <option value="محفظة إلكترونية">2. محفظة إلكترونية</option>
+              <option value="إنستاباي">3. إنستاباي</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>العنوان بالتفصيل *</label>
+            <textarea id="c_address" rows="2" placeholder="المحافظة - المدينة - الشارع - تفاصيل السكن"></textarea>
+          </div>
+          <div class="field">
+            <label>المقدم المسدد (ج.م) *</label>
+            <input type="number" id="c_advance" min="0" step="0.5" placeholder="قيمة المقدم المحصل">
+          </div>
+          <div class="online-calc-box">
+            <div class="online-calc-row"><span>إجمالي أصناف الطلب:</span><span id="onl_total_lbl">0.00 ج.م</span></div>
+            <div class="online-calc-row"><span>المقدم المسدد:</span><span id="onl_advance_lbl">0.00 ج.م</span></div>
+            <div class="online-calc-row remaining"><span>المتبقي المطلوب تحصيله:</span><span id="onl_remaining_lbl">0.00 ج.م</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Selection Card -->
+      <div class="card">
+        <h3><i class="fa-solid fa-barcode"></i> اختيار المنتج</h3>
+        <div class="field autocomplete-wrap">
+          <label>كود المنتج أو الباركود</label>
+          <input type="text" id="i_code" placeholder="أدخل أو امسح الباركود">
+          <div class="ac-list" id="ac_i_code"></div>
+        </div>
+        <div class="field autocomplete-wrap">
+          <label>اسم المنتج</label>
+          <input type="text" id="i_name" placeholder="ابحث بالاسم">
+          <div class="ac-list" id="ac_i_name"></div>
+        </div>
+        
+        <button class="btn btn-outline btn-block" id="btnScanItem" style="margin-bottom:12px;"><i class="fa-solid fa-barcode"></i> مسح باركود المنتج (كاميرا)</button>
+        
+        <!-- Thumbnail Preview & Zoom Trigger -->
+        <div id="productPreviewCard" class="prod-preview-card hidden">
+          <img id="prodThumbImg" class="prod-preview-thumb" src="" alt="صورة المنتج" title="اضغط للتكبير">
+          <div class="prod-preview-info">
+            <b id="prodThumbName">—</b>
+            <small id="prodThumbCode">—</small>
+            <div class="prod-preview-zoom-tip" id="btnZoomThumb"><i class="fa-solid fa-magnifying-glass-plus"></i> اضغط لتكبير الصورة والتحقق</div>
+          </div>
+        </div>
+
+        <div class="field"><label>الكمية</label><input type="number" id="i_qty" min="1" value="1"></div>
+        <div class="stock-note" id="stockNote">اختر منتجاً لعرض الكمية المتاحة</div>
+        <div class="price-display hidden" id="priceDisplay"></div>
+        <button class="btn btn-success btn-block btn-lg" id="btnAddItem" style="margin-top:14px;"><i class="fa-solid fa-plus"></i> إضافة المنتج للفاتورة</button>
+      </div>
+
+      <!-- Cart Card -->
+      <div class="card" id="cartCard">
+        <h3><i class="fa-solid fa-cart-shopping"></i> عربة الفاتورة</h3>
+        <div id="cartList"><div class="empty-state"><i class="fa-solid fa-basket-shopping"></i>لم تتم إضافة منتجات بعد</div></div>
+      </div>
+
+      <!-- Total & Submit Action -->
+      <div class="total-bar"><span class="lbl" id="cartTotalLbl">إجمالي الفاتورة</span><span class="val" id="cartTotal">0.00</span></div>
+      <button class="btn btn-primary btn-block btn-lg" id="btnIssueInvoice"><i class="fa-solid fa-file-invoice"></i> إصدار الفاتورة</button>
+
+      <div class="app-copyright">Copyright © Abdelmoneim</div>
+    </section>
+
+    <!-- ============ MY SALES ============ -->
+    <section class="tab-section" id="tab-mysales">
+      <div class="summary-grid">
+        <div class="summary-card"><div class="val" id="sumTodayCount">0</div><div class="lbl">مبيعات اليوم الفعلية</div></div>
+        <div class="summary-card"><div class="val" id="sumTodayRevenue">0.00</div><div class="lbl">إيرادات اليوم الصافية</div></div>
+        <div class="summary-card"><div class="val" id="sumMonthCount">0</div><div class="lbl">مبيعات الشهر</div></div>
+        <div class="summary-card"><div class="val" id="sumMonthRevenue">0.00</div><div class="lbl">إيرادات الشهر</div></div>
+      </div>
+      <div class="chip-row">
+        <button class="chip active" data-range="today">اليوم</button>
+        <button class="chip" data-range="yesterday">أمس</button>
+        <button class="chip" data-range="7days">آخر 7 أيام</button>
+        <button class="chip" data-range="month">هذا الشهر</button>
+        <button class="chip" data-range="retention">آخر 35 يوماً</button>
+      </div>
+      <div class="filter-bar">
+        <input type="text" id="f_myCustomer" placeholder="اسم العميل">
+        <input type="text" id="f_myProduct" placeholder="اسم/كود المنتج">
+        <input type="text" id="f_myInvoice" placeholder="رقم الفاتورة/الطلب">
+        <select id="f_myChannel"><option value="">كل العمليات</option><option value="direct">بيع مباشر</option><option value="online">أونلاين</option></select>
+        <button class="btn btn-primary btn-sm" id="btnApplyMyFilter">تطبيق</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;">
+        <button class="btn btn-gold btn-block" id="btnExportMySales"><i class="fa-solid fa-file-excel"></i> تصدير مبيعاتي</button>
+        <button class="btn btn-ghost btn-sm" id="btnRefreshSales" title="تحديث يدوي فوري"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+      <div id="mySalesList"></div>
+      <div class="app-copyright">Copyright © Abdelmoneim</div>
+    </section>
+
+    <!-- ============ ACCOUNT ============ -->
+    <section class="tab-section" id="tab-account">
+      <div class="card">
+        <h3><i class="fa-solid fa-id-badge"></i> حسابي</h3>
+        <p><b>الاسم:</b> <span id="acc_name">—</span></p>
+        <p><b>اسم المستخدم:</b> <span id="acc_username">—</span></p>
+        <p><b>معرف البائع (User ID):</b> <span id="acc_uid" style="font-family:monospace;font-size:12px;">—</span></p>
+        <p><b>المتجر:</b> بندورة للأكسسوارات</p>
+        <p><b>تخزين المعاملات:</b> <span class="badge badge-success">سحابي دائم (متزامن عبر الأجهزة)</span></p>
+        <p><b>سياسة الحفظ التلقائي:</b> <span class="badge badge-gold">احتفاظ 35 يوماً مخصص للبائع</span></p>
+      </div>
+      <button class="btn btn-danger btn-block btn-lg" id="logoutBtn2"><i class="fa-solid fa-power-off"></i> تسجيل الخروج</button>
+      <div class="app-copyright">Copyright © Abdelmoneim</div>
+    </section>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="active" data-tab="invoice"><i class="fa-solid fa-file-invoice"></i>نقطة البيع</button>
+    <button data-tab="mysales"><i class="fa-solid fa-chart-simple"></i>مبيعاتي</button>
+    <button data-tab="account"><i class="fa-solid fa-user"></i>حسابي</button>
+  </div>
+</div>
+
+<!-- ===================== SCANNER MODAL ===================== -->
+<div class="modal-overlay" id="scannerModal">
   <div class="modal">
-    <div class="success-modal">
-      <div class="success-icon">✓</div>
-      <div class="success-title">تم استلام طلبك!</div>
-      <div class="success-desc">شكراً لك، سيتم مراجعة طلبك والتواصل معك قريباً.</div>
-      <div class="order-num-badge" id="successOrderNum">رقم الطلب: #000000</div>
-      <button class="btn-submit" style="margin-top:0;" onclick="closeSuccessModal()">العودة للمنتجات</button>
+    <div class="modal-head"><h3><i class="fa-solid fa-barcode"></i> مسح باركود المنتج</h3><button class="modal-close" data-close="scannerModal">&times;</button></div>
+    <div class="modal-body">
+      <div id="sellerReader"></div>
+      <p style="margin-top:10px;text-align:center;font-size:12px;color:var(--ink-soft);">
+        وجّه الكاميرا نحو خطوط الباركود أو رمز الاستجابة السريعة (QR).
+      </p>
     </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!--  ADMIN AUTH PAGE                                             -->
-<!-- ============================================================ -->
-<div id="admin-auth-page" style="display:none;">
-  <div class="auth-card">
-    <div class="auth-logo">🔐</div>
-    <div class="auth-title">لوحة تحكم الأدمن</div>
-    <div class="auth-sub">تسجيل الدخول للوصول لإدارة الطلبات</div>
-    <form class="auth-form" onsubmit="adminLogin(event)">
-      <div class="form-group">
-        <label class="form-label">البريد الإلكتروني <span class="required-star">*</span></label>
-        <input type="email" class="form-input" id="adminEmail" placeholder="admin@bandora.com" required />
-      </div>
-      <div class="form-group">
-        <label class="form-label">كلمة المرور <span class="required-star">*</span></label>
-        <input type="password" class="form-input" id="adminPassword" placeholder="••••••••" required />
-      </div>
-      <div class="form-error" id="authError" style="display:none; margin-bottom:12px;">⚠️ بيانات خاطئة، حاول مرة أخرى</div>
-      <button type="submit" class="btn-auth" id="loginBtn">دخول</button>
-    </form>
+<!-- ===================== IMAGE LIGHTBOX MODAL ===================== -->
+<div class="modal-overlay" id="imageLightboxModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="lightboxProdName">معاينة صورة المنتج</h3>
+      <button class="modal-close" data-close="imageLightboxModal">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:16px;text-align:center;">
+      <img id="lightboxImg" src="" alt="تكبير الصورة">
+      <div id="lightboxProdPrice" style="margin-top:12px;font-weight:800;color:var(--brand);font-size:16px;"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-block" data-close="imageLightboxModal">إغلاق المعاينة</button>
+    </div>
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!--  ADMIN DASHBOARD PAGE                                        -->
-<!-- ============================================================ -->
-<div id="admin-dashboard-page">
-
-  <header class="admin-header">
-    <div class="admin-header-inner">
-      <div style="display:flex;align-items:center;gap:12px;">
-        <span style="font-size:22px;">🥘</span>
-        <span style="font-weight:800;font-size:18px;color:var(--gold);">بندورة</span>
-        <span class="admin-badge">لوحة التحكم</span>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-size:13px;color:var(--steel);" id="adminEmailDisplay"></span>
-        <button class="btn-logout" onclick="adminLogout()">🚪 خروج</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- STATS -->
-  <div class="admin-stats" id="adminStats">
-    <div class="stat-card gold">
-      <div class="stat-card-icon">📦</div>
-      <div class="stat-card-num" id="statTotal">0</div>
-      <div class="stat-card-label">إجمالي الطلبات</div>
-    </div>
-    <div class="stat-card gold">
-      <div class="stat-card-icon">⏳</div>
-      <div class="stat-card-num" id="statPending">0</div>
-      <div class="stat-card-label">في الانتظار</div>
-    </div>
-    <div class="stat-card blue">
-      <div class="stat-card-icon">✅</div>
-      <div class="stat-card-num" id="statAccepted">0</div>
-      <div class="stat-card-label">مقبولة</div>
-    </div>
-    <div class="stat-card green">
-      <div class="stat-card-icon">🚚</div>
-      <div class="stat-card-num" id="statShipped">0</div>
-      <div class="stat-card-label">تم الشحن</div>
-    </div>
-    <div class="stat-card red">
-      <div class="stat-card-icon">❌</div>
-      <div class="stat-card-num" id="statRejected">0</div>
-      <div class="stat-card-label">مرفوضة</div>
+<!-- ===================== REVIEW MODAL ===================== -->
+<div class="modal-overlay" id="reviewModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="reviewModalTitle">مراجعة المعاملة</h3><button class="modal-close" data-close="reviewModal">&times;</button></div>
+    <div class="modal-body" id="reviewBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" data-close="reviewModal" style="flex:1;">تعديل</button>
+      <button class="btn btn-success" id="confirmInvoiceBtn" style="flex:1;"><i class="fa-solid fa-check"></i> تأكيد وإصدار</button>
     </div>
   </div>
+</div>
 
-  <!-- TABS -->
-  <div class="admin-tabs">
-    <button class="tab-btn active" onclick="switchTab('orders', this)">
-      📋 الطلبات <span class="tab-badge" id="tabBadgeOrders">0</span>
-    </button>
-    <button class="tab-btn" onclick="switchTab('products', this)">
-      📦 إدارة المنتجات
-    </button>
-  </div>
-
-  <!-- ORDERS TAB -->
-  <div class="tab-panel active" id="tab-orders">
-    <div class="orders-section">
-      <!-- Filters -->
-      <div class="orders-filters">
-        <input class="filter-input" id="searchFilter" type="text" placeholder="🔍 بحث بالاسم أو الهاتف..." oninput="filterOrders()" />
-        <select class="filter-select" id="statusFilter" onchange="filterOrders()">
-          <option value="">كل الحالات</option>
-          <option value="pending">في الانتظار</option>
-          <option value="accepted">مقبول</option>
-          <option value="shipped">تم الشحن</option>
-          <option value="rejected">مرفوض</option>
-        </select>
-      </div>
-
-      <!-- Table -->
-      <div class="orders-table-wrap">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>العميل</th>
-              <th>الهاتف</th>
-              <th>المنتج</th>
-              <th>الكمية</th>
-              <th>الدفع</th>
-              <th>الحالة</th>
-              <th>التاريخ</th>
-              <th>إجراء</th>
-            </tr>
-          </thead>
-          <tbody id="ordersTableBody">
-            <tr>
-              <td colspan="9">
-                <div class="empty-state">
-                  <div class="empty-state-icon">⏳</div>
-                  <div class="empty-state-text">جاري تحميل الطلبات...</div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+<!-- ===================== FINAL INVOICE & QUOTATION MODAL ===================== -->
+<div class="modal-overlay" id="finalInvoiceModal">
+  <div class="modal">
+    <div class="modal-head"><h3 id="finalModalTitle">المستند</h3><button class="modal-close" data-close="finalInvoiceModal">&times;</button></div>
+    <div class="modal-body" id="finalInvoiceBody"></div>
+    <div class="modal-foot" style="flex-direction:column;">
+      <button class="btn btn-success btn-block btn-lg" id="finalWaBtn"><i class="fa-brands fa-whatsapp"></i> إرسال الفاتورة PDF عبر واتساب</button>
+      <button class="btn btn-gold btn-block" id="finalPdfBtn"><i class="fa-solid fa-file-pdf"></i> تحميل PDF الفاتورة</button>
+      <button class="btn btn-outline btn-block" id="finalPrintBtn"><i class="fa-solid fa-print"></i> طباعة الفاتورة</button>
+      <button class="btn btn-ghost btn-block" data-close="finalInvoiceModal">إغلاق</button>
     </div>
   </div>
+</div>
 
-  <!-- PRODUCTS TAB -->
-  <div class="tab-panel" id="tab-products">
-    <div class="add-product-section">
-      <div class="add-product-card">
-        <div class="add-product-title">➕ إضافة منتج جديد</div>
-        <form onsubmit="addProduct(event)" id="addProductForm">
-          <div class="form-group">
-            <label class="form-label">اسم المنتج <span class="required-star">*</span></label>
-            <input type="text" class="form-input" id="pName" placeholder="مثال: طقم أواني استانلس 12 قطعة" required />
-          </div>
-          <div class="form-group">
-            <label class="form-label">الوصف</label>
-            <textarea class="form-input form-textarea" id="pDesc" placeholder="وصف مختصر للمنتج" rows="3"></textarea>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">السعر (جنيه) <span class="required-star">*</span></label>
-              <input type="number" class="form-input" id="pPrice" placeholder="0" min="0" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">الوحدة</label>
-              <input type="text" class="form-input" id="pUnit" placeholder="للقطعة / للطقم" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">رابط صورة المنتج (URL)</label>
-            <input type="url" class="form-input" id="pImage" placeholder="https://example.com/image.jpg" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">تصنيف / شارة</label>
-            <input type="text" class="form-input" id="pBadge" placeholder="جديد / الأكثر مبيعاً" />
-          </div>
-          <button type="submit" class="btn-submit" style="margin-top:0;">➕ إضافة المنتج</button>
-        </form>
+<div id="toastHost"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div id="loadingMsg" style="font-weight:700;">جارِ التحميل...</div></div>
+
+<script>
+// =====================================================================
+// BANDORA ACCESSORIES — SELLER / POS CLIENT ENGINE
+// =====================================================================
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDRyXodJvPMwJi-YPp0EYvH1oN__F6Gr6U",
+  authDomain: "pandora-store-ba345.firebaseapp.com",
+  projectId: "pandora-store-ba345",
+  storageBucket: "pandora-store-ba345.firebasestorage.app",
+  messagingSenderId: "242127771513",
+  appId: "1:242127771513:web:7e0268be18dca954cf41a8",
+  measurementId: "G-6GTEY01LN7"
+};
+
+const SELLER_EMAIL_DOMAIN = "@bandora-pos.local";
+const RETENTION_DAYS = 35;
+const RETENTION_MS = RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+db.settings({ ignoreUndefinedProperties: true });
+try { db.enablePersistence({ synchronizeTabs: true }); } catch (e) { }
+
+let currentSeller = null;
+let currentPosMode = 'direct';
+let isSubmittingInvoice = false;
+let salesRealtimeUnsubscribe = null;
+let invoicesRealtimeUnsubscribe = null;
+
+// Helpers
+const $ = (sel, ctx = document) => ctx.querySelector(sel);
+const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+const fmtMoney = n => (Number(n) || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+function tsToDate(ts) {
+  if (!ts) return null;
+  if (typeof ts.toDate === 'function') return ts.toDate();
+  if (ts instanceof Date) return ts;
+  if (typeof ts === 'number') return new Date(ts);
+  if (typeof ts === 'string') {
+    const d = new Date(ts);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+const fmtDate = ts => {
+  const d = tsToDate(ts);
+  return d ? d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'Africa/Cairo' }) : '—';
+};
+const fmtTime = ts => {
+  const d = tsToDate(ts);
+  return d ? d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Africa/Cairo' }) : '—';
+};
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function debounce(fn, ms) {
+  let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); };
+}
+
+function formatWhatsAppPhone(phone) {
+  if (!phone) return '';
+  let clean = phone.replace(/[^0-9]/g, '').replace(/^00/, '');
+  if (/^01[0125][0-9]{8}$/.test(clean)) {
+    clean = '2' + clean;
+  } else if (/^1[0125][0-9]{8}$/.test(clean)) {
+    clean = '20' + clean;
+  }
+  return clean;
+}
+
+function placeholderImg() {
+  return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80"><rect width="80" height="80" fill="%23F1F3F5"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="11" fill="%239AA6B2">بدون صورة</text></svg>');
+}
+
+function showToast(msg, type = 'success') {
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-exclamation', warn: 'fa-triangle-exclamation' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fa-solid ${icons[type] || icons.success}"></i><span>${msg}</span>`;
+  $('#toastHost').appendChild(el);
+  setTimeout(() => { el.style.opacity = '0'; el.style.transition = '.3s'; setTimeout(() => el.remove(), 300); }, 3800);
+}
+function showLoading(msg = 'جارِ التحميل...') { $('#loadingMsg').textContent = msg; $('#loadingOverlay').classList.add('show'); }
+function hideLoading() { $('#loadingOverlay').classList.remove('show'); }
+function openModal(id) { $('#' + id).classList.add('show'); }
+function closeModal(id) { $('#' + id).classList.remove('show'); }
+$$('[data-close]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.close)));
+$$('.modal-overlay').forEach(m => m.addEventListener('click', e => { if (e.target === m) m.classList.remove('show'); }));
+
+function friendlyError(err) {
+  const code = err && err.code ? err.code : (err && err.message) || '';
+  console.error('POS Technical Trace:', err);
+  const map = {
+    'auth/invalid-email': 'اسم المستخدم غير صحيح.',
+    'auth/user-not-found': 'بيانات الدخول غير صحيحة.',
+    'auth/wrong-password': 'كلمة المرور غير صحيحة.',
+    'auth/invalid-credential': 'بيانات الدخول غير صحيحة.',
+    'auth/too-many-requests': 'محاولات كثيرة جداً، يرجى الانتظار.',
+    'auth/network-request-failed': 'تعذر الاتصال بالشبكة.',
+    'permission-denied': 'تم رفض الصلاحية من قاعدة البيانات (تأكد أن الحساب مفعل كبائع).',
+    'unavailable': 'الخدمة غير متاحة حالياً.'
+  };
+  return map[code] || 'حدث خطأ غير متوقع. حاول مرة أخرى.';
+}
+
+// =====================================================================
+// AUTHENTICATION
+// =====================================================================
+$('#loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const username = $('#loginUsername').value.trim().toLowerCase().replace(/\s+/g, '');
+  const password = $('#loginPassword').value;
+  const btn = $('#loginBtn');
+  $('#loginError').style.display = 'none';
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارِ الدخول...';
+  try {
+    await auth.signInWithEmailAndPassword(username + SELLER_EMAIL_DOMAIN, password);
+  } catch (err) {
+    $('#loginError').textContent = friendlyError(err);
+    $('#loginError').style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول';
+  }
+});
+
+auth.onAuthStateChanged(async (user) => {
+  if (salesRealtimeUnsubscribe) { salesRealtimeUnsubscribe(); salesRealtimeUnsubscribe = null; }
+  if (invoicesRealtimeUnsubscribe) { invoicesRealtimeUnsubscribe(); invoicesRealtimeUnsubscribe = null; }
+
+  if (!user) {
+    $('#loginScreen').style.display = 'flex';
+    $('#appShell').style.display = 'none';
+    currentSeller = null;
+    cart = [];
+    renderCart();
+    return;
+  }
+  try {
+    showLoading('جارِ التحقق من حساب البائع وجلب المعاملات...');
+    const doc = await db.collection('sellers').doc(user.uid).get();
+    hideLoading();
+    if (!doc.exists || doc.data().active === false) {
+      showToast('هذا الحساب غير مفعل كبائع.', 'error');
+      await auth.signOut();
+      return;
+    }
+
+    currentSeller = { uid: user.uid, ...doc.data() };
+    $('#loginScreen').style.display = 'none';
+    $('#appShell').style.display = 'block';
+    $('#sellerNameLbl').textContent = currentSeller.displayName || currentSeller.username;
+    $('#acc_name').textContent = currentSeller.displayName || '';
+    $('#acc_username').textContent = currentSeller.username || '';
+    $('#acc_uid').textContent = currentSeller.uid;
+
+    await loadProductsCache();
+    setupBiDirectionalSync(currentSeller.uid);
+    await loadMySalesFromCloud(currentRange);
+  } catch (err) {
+    hideLoading();
+    showToast(friendlyError(err), 'error');
+  }
+});
+
+function doLogout() {
+  if (salesRealtimeUnsubscribe) { salesRealtimeUnsubscribe(); salesRealtimeUnsubscribe = null; }
+  if (invoicesRealtimeUnsubscribe) { invoicesRealtimeUnsubscribe(); invoicesRealtimeUnsubscribe = null; }
+  auth.signOut();
+  cart = [];
+  renderCart();
+}
+$('#logoutBtn').addEventListener('click', doLogout);
+$('#logoutBtn2').addEventListener('click', doLogout);
+
+// =====================================================================
+// BI-DIRECTIONAL REAL-TIME SYNCHRONIZATION
+// =====================================================================
+function setupBiDirectionalSync(sellerUid) {
+  if (!sellerUid) return;
+
+  salesRealtimeUnsubscribe = db.collection('sales')
+    .where('sellerId', '==', sellerUid)
+    .onSnapshot((snapshot) => {
+      let hasModified = false;
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'modified') {
+          hasModified = true;
+          showToast(`تم تحديث مبيعة بواسطة الإدارة`, 'warn');
+        } else if (change.type === 'removed') {
+          hasModified = true;
+          showToast(`تم حذف مبيعة من قبل الإدارة`, 'warn');
+        }
+      });
+      if (hasModified) {
+        loadMySalesFromCloud(currentRange);
+      }
+    }, (err) => {
+      console.warn('Realtime sales snapshot listener notice:', err);
+    });
+
+  invoicesRealtimeUnsubscribe = db.collection('invoices')
+    .where('sellerId', '==', sellerUid)
+    .onSnapshot((snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        const inv = { id: change.doc.id, ...change.doc.data() };
+        if (change.type === 'modified') {
+          if (inv.orderStatus === 'approved' || inv.status === 'approved') {
+            showToast(`تمت موافقة الإدارة على الطلب: ${inv.id}`, 'success');
+          }
+          loadMySalesFromCloud(currentRange);
+          if (lastInvoice && (lastInvoice.id === inv.id || lastInvoice.invoiceId === inv.id)) {
+            showFinalInvoice(inv);
+          }
+        }
+      });
+    }, (err) => {
+      console.warn('Realtime invoices snapshot listener notice:', err);
+    });
+}
+
+// =====================================================================
+// WORKFLOW SWITCHER: بيع مباشر vs أونلاين
+// =====================================================================
+$('#tabBtnDirect').addEventListener('click', () => setPosMode('direct'));
+$('#tabBtnOnline').addEventListener('click', () => setPosMode('online'));
+
+function setPosMode(mode) {
+  currentPosMode = mode;
+  if (mode === 'direct') {
+    $('#tabBtnDirect').classList.add('active');
+    $('#tabBtnOnline').classList.remove('active');
+    $('#wrap_direct_payment').classList.remove('hidden');
+    $('#wrap_online_fields').classList.add('hidden');
+    $('#cartTotalLbl').textContent = 'إجمالي الفاتورة';
+    $('#btnIssueInvoice').innerHTML = '<i class="fa-solid fa-file-invoice"></i> إصدار الفاتورة النهائية';
+    $('#customerSecTitle').innerHTML = '<i class="fa-solid fa-user"></i> بيانات العميل والبيع المباشر';
+  } else {
+    $('#tabBtnOnline').classList.add('active');
+    $('#tabBtnDirect').classList.remove('active');
+    $('#wrap_direct_payment').classList.add('hidden');
+    $('#wrap_online_fields').classList.remove('hidden');
+    $('#cartTotalLbl').textContent = 'إجمالي عرض أسعار الأونلاين';
+    $('#btnIssueInvoice').innerHTML = '<i class="fa-solid fa-paper-plane"></i> إصدار عرض أسعار (إرسال للمراجعة)';
+    $('#customerSecTitle').innerHTML = '<i class="fa-solid fa-earth-americas"></i> بيانات طلب الأونلاين والشحن';
+    updateOnlineCalculations();
+  }
+}
+
+$('#c_advance').addEventListener('input', updateOnlineCalculations);
+
+function updateOnlineCalculations() {
+  const total = cart.reduce((s, c) => s + c.total, 0);
+  const advance = Number($('#c_advance').value) || 0;
+  const remaining = Math.max(0, total - advance);
+
+  $('#onl_total_lbl').textContent = `${fmtMoney(total)} ج.م`;
+  $('#onl_advance_lbl').textContent = `${fmtMoney(advance)} ج.م`;
+  $('#onl_remaining_lbl').textContent = `${fmtMoney(remaining)} ج.م`;
+}
+
+$$('.bottom-nav button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.bottom-nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    $$('.tab-section').forEach(s => s.classList.remove('active'));
+    $('#tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'mysales') loadMySalesFromCloud(currentRange);
+  });
+});
+
+// =====================================================================
+// PRODUCT SELECTION, THUMBNAIL & LIGHTBOX VIEWER
+// =====================================================================
+let productsCache = [];
+let selectedItemProduct = null;
+
+async function loadProductsCache() {
+  try {
+    const snap = await db.collection('products').limit(3000).get();
+    productsCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (err) {
+    console.warn('Products load error:', err);
+  }
+}
+
+function setupAutocomplete(inputId, listId, matchField, onSelect) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  input.addEventListener('input', debounce(() => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { list.style.display = 'none'; return; }
+    const matches = productsCache.filter(p => (String(p[matchField] || '')).toLowerCase().includes(q)).slice(0, 8);
+    if (!matches.length) { list.style.display = 'none'; return; }
+    list.innerHTML = matches.map(p => `
+      <div class="ac-item" data-id="${p.id}">
+        <b>${escapeHtml(p.name)}</b>
+        <small>${escapeHtml(p.code || p.id)} · متاح: ${p.quantity}</small>
+      </div>`).join('');
+    list.style.display = 'block';
+    $$('.ac-item', list).forEach(item => item.addEventListener('click', () => {
+      const prod = productsCache.find(x => x.id === item.dataset.id);
+      onSelect(prod);
+      list.style.display = 'none';
+    }));
+  }, 150));
+  document.addEventListener('click', (e) => {
+    if (!list.contains(e.target) && e.target !== input) list.style.display = 'none';
+  });
+}
+
+setupAutocomplete('i_code', 'ac_i_code', 'code', selectItemProduct);
+setupAutocomplete('i_name', 'ac_i_name', 'name', selectItemProduct);
+
+function selectItemProduct(p) {
+  if (!p) return;
+  selectedItemProduct = p;
+  $('#i_code').value = p.code || p.id;
+  $('#i_name').value = p.name || '';
+
+  const imgUrl = p.imageUrl || placeholderImg();
+  $('#prodThumbImg').src = imgUrl;
+  $('#prodThumbName').textContent = p.name || '';
+  $('#prodThumbCode').textContent = `كود: ${p.code || p.id}`;
+  $('#productPreviewCard').classList.remove('hidden');
+
+  updateStockAndPrice();
+}
+
+function openImageLightbox() {
+  if (!selectedItemProduct) return;
+  const imgUrl = selectedItemProduct.imageUrl || placeholderImg();
+  $('#lightboxImg').src = imgUrl;
+  $('#lightboxProdName').textContent = selectedItemProduct.name || 'صورة المنتج';
+  
+  const type = $('#c_type').value;
+  const price = type === 'wholesale' ? selectedItemProduct.wholesalePrice : selectedItemProduct.retailPrice;
+  $('#lightboxProdPrice').textContent = `السعر: ${fmtMoney(price)} ج.م (المتاح: ${selectedItemProduct.quantity || 0})`;
+  openModal('imageLightboxModal');
+}
+
+$('#prodThumbImg').addEventListener('click', openImageLightbox);
+$('#btnZoomThumb').addEventListener('click', openImageLightbox);
+
+$('#i_code').addEventListener('change', () => {
+  const code = $('#i_code').value.trim();
+  if (!code) return;
+  const p = productsCache.find(x => String(x.code || x.id).toLowerCase() === code.toLowerCase());
+  if (p) {
+    selectItemProduct(p);
+  } else {
+    selectedItemProduct = null;
+    $('#productPreviewCard').classList.add('hidden');
+    $('#stockNote').textContent = 'المنتج غير مسجل بالمخزون';
+    $('#stockNote').classList.add('err');
+    $('#priceDisplay').classList.add('hidden');
+  }
+});
+$('#c_type').addEventListener('change', updateStockAndPrice);
+$('#i_qty').addEventListener('input', updateStockAndPrice);
+
+function updateStockAndPrice() {
+  if (!selectedItemProduct) return;
+  const qty = Number($('#i_qty').value) || 0;
+  const available = Number(selectedItemProduct.quantity) || 0;
+  const note = $('#stockNote');
+  if (qty > available) {
+    note.textContent = `الكمية المتاحة: ${available} فقط — لا يمكن تجاوزها`;
+    note.classList.add('err');
+  } else {
+    note.textContent = `الكمية المتاحة في المخزون: ${available}`;
+    note.classList.remove('err');
+  }
+  const type = $('#c_type').value;
+  const price = type === 'wholesale' ? selectedItemProduct.wholesalePrice : selectedItemProduct.retailPrice;
+  $('#priceDisplay').textContent = `سعر الوحدة: ${fmtMoney(price)} ج.م`;
+  $('#priceDisplay').classList.remove('hidden');
+}
+
+// =====================================================================
+// BARCODE SCANNER
+// =====================================================================
+let sellerScanner = null;
+
+$('#btnScanItem').addEventListener('click', async () => {
+  openModal('scannerModal');
+  try {
+    sellerScanner = new Html5Qrcode('sellerReader');
+    await sellerScanner.start(
+      { facingMode: 'environment' },
+      { fps: 15, qrbox: { width: 280, height: 160 }, aspectRatio: 1.777778 },
+      (decodedText) => {
+        const rawCode = String(decodedText || '').trim();
+        $('#i_code').value = rawCode;
+
+        const p = productsCache.find(x =>
+          String(x.code || '').trim().toLowerCase() === rawCode.toLowerCase() ||
+          String(x.id || '').trim().toLowerCase() === rawCode.toLowerCase()
+        );
+
+        if (p) {
+          selectItemProduct(p);
+          showToast(`تم التعرف على المنتج: ${p.name}`, 'success');
+        } else {
+          showToast(`الباركود (${rawCode}) غير مسجل بالمنتجات`, 'warn');
+        }
+
+        stopSellerScanner();
+        closeModal('scannerModal');
+      },
+      () => { }
+    );
+  } catch (err) {
+    showToast('تعذر تشغيل الكاميرا لمسح الباركود', 'error');
+    closeModal('scannerModal');
+  }
+});
+
+function stopSellerScanner() {
+  if (sellerScanner) {
+    sellerScanner.stop().then(() => sellerScanner.clear()).catch(() => {});
+    sellerScanner = null;
+  }
+}
+document.querySelector('[data-close="scannerModal"]').addEventListener('click', stopSellerScanner);
+
+// =====================================================================
+// CART OPERATIONS
+// =====================================================================
+let cart = [];
+
+$('#btnAddItem').addEventListener('click', () => {
+  if (!selectedItemProduct) return showToast('اختر منتجاً أولاً', 'warn');
+  const qty = Number($('#i_qty').value);
+  if (!qty || qty < 1) return showToast('أدخل كمية صحيحة (1 على الأقل)', 'warn');
+
+  const available = Number(selectedItemProduct.quantity) || 0;
+  const prodId = selectedItemProduct.code || selectedItemProduct.id;
+  const alreadyInCart = cart.filter(c => c.code === prodId).reduce((s, c) => s + c.quantity, 0);
+
+  if (qty + alreadyInCart > available) {
+    return showToast(`الكمية المطلوبة تتجاوز المخزون المتاح (${available})`, 'error');
+  }
+
+  const type = $('#c_type').value;
+  const unitPrice = type === 'wholesale' ? Number(selectedItemProduct.wholesalePrice) : Number(selectedItemProduct.retailPrice);
+  const existing = cart.find(c => c.code === prodId);
+
+  if (existing) {
+    existing.quantity += qty;
+    existing.total = existing.quantity * existing.unitPrice;
+  } else {
+    cart.push({
+      code: prodId,
+      name: selectedItemProduct.name,
+      quantity: qty,
+      unitPrice,
+      total: qty * unitPrice,
+      maxStock: available
+    });
+  }
+
+  renderCart();
+  $('#i_code').value = '';
+  $('#i_name').value = '';
+  $('#i_qty').value = 1;
+  $('#priceDisplay').classList.add('hidden');
+  $('#stockNote').textContent = 'اختر منتجاً لعرض الكمية المتاحة';
+  $('#stockNote').classList.remove('err');
+  $('#productPreviewCard').classList.add('hidden');
+  selectedItemProduct = null;
+  updateOnlineCalculations();
+  showToast('تمت إضافة المنتج للعربة', 'success');
+});
+
+function renderCart() {
+  if (!cart.length) {
+    $('#cartList').innerHTML = `<div class="empty-state"><i class="fa-solid fa-basket-shopping"></i>لم تتم إضافة منتجات بعد</div>`;
+  } else {
+    $('#cartList').innerHTML = cart.map((c, i) => `
+      <div class="cart-item">
+        <div class="ci-info">
+          <b>${escapeHtml(c.name)}</b>
+          <small>${escapeHtml(c.code)} · ${fmtMoney(c.unitPrice)} ج.م</small>
+        </div>
+        <div class="ci-qty">
+          <button type="button" onclick="changeQty(${i},-1)">-</button>
+          <span>${c.quantity}</span>
+          <button type="button" onclick="changeQty(${i},1)">+</button>
+        </div>
+        <div class="ci-total">${fmtMoney(c.total)}</div>
+        <button type="button" class="ci-remove" onclick="removeItem(${i})"><i class="fa-solid fa-trash"></i></button>
+      </div>`).join('');
+  }
+  const total = cart.reduce((s, c) => s + c.total, 0);
+  $('#cartTotal').textContent = fmtMoney(total);
+  updateOnlineCalculations();
+}
+
+window.changeQty = (i, delta) => {
+  const c = cart[i];
+  if (!c) return;
+  const newQty = c.quantity + delta;
+  if (newQty < 1) return;
+  if (newQty > c.maxStock) return showToast(`المخزون المتاح: ${c.maxStock}`, 'warn');
+  c.quantity = newQty;
+  c.total = newQty * c.unitPrice;
+  renderCart();
+};
+window.removeItem = (i) => {
+  cart.splice(i, 1);
+  renderCart();
+};
+
+// =====================================================================
+// INVOICE & QUOTATION REVIEW & SAVING
+// =====================================================================
+$('#btnIssueInvoice').addEventListener('click', () => {
+  const phone1 = $('#c_phone1').value.trim();
+  if (!phone1 || !/^[0-9+\s-]{7,15}$/.test(phone1)) {
+    return showToast('يرجى إدخال رقم هاتف أساسي صحيح للعميل', 'warn');
+  }
+  if (!cart.length) return showToast('عربة الفاتورة فارغة، أضف صنفاً واحداً على الأقل', 'warn');
+
+  const name = $('#c_name').value.trim();
+  const total = cart.reduce((s, c) => s + c.total, 0);
+
+  if (currentPosMode === 'online') {
+    const address = $('#c_address').value.trim();
+    const advanceVal = $('#c_advance').value.trim();
+    const advance = Number(advanceVal);
+
+    if (!address) return showToast('يرجى إدخال عنوان التوصيل بالتفصيل لطلب الأونلاين', 'warn');
+    if (advanceVal === '' || isNaN(advance) || advance < 0) return showToast('يرجى إدخال قيمة مقدم صالحة', 'warn');
+    if (advance > total) return showToast(`قيمة المقدم (${advance}) لا يمكن أن تتجاوز الإجمالي (${total})`, 'error');
+
+    const remaining = total - advance;
+    const paymentMethod = $('#c_payment_online').value;
+
+    $('#reviewModalTitle').textContent = 'مراجعة طلب الأونلاين (عرض أسعار قبل اعتماد الإدارة)';
+    $('#reviewBody').innerHTML = `
+      <div class="quotation-alert">
+        <i class="fa-solid fa-clock"></i> سيصدر هذا الطلب كـ «عرض أسعار / غير معتمد» ولن يصبح فاتورة نهائية إلا بعد موافقة الإدارة.
       </div>
+      <p><b>نوع العملية:</b> <span class="badge badge-gold">طلب أونلاين (عرض أسعار)</span></p>
+      <p><b>العميل:</b> ${escapeHtml(name || 'عميل أونلاين')}</p>
+      <p><b>الهاتف:</b> ${escapeHtml(phone1)}${$('#c_phone2').value ? ' / ' + escapeHtml($('#c_phone2').value) : ''}</p>
+      <p><b>العنوان:</b> ${escapeHtml(address)}</p>
+      <p><b>وسيلة الدفع:</b> ${escapeHtml(paymentMethod)}</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;">
+        <thead><tr style="text-align:right;color:var(--ink-soft);border-bottom:1px solid #eee;"><th>المنتج</th><th>الكمية</th><th>الإجمالي</th></tr></thead>
+        <tbody>${cart.map(c => `<tr><td style="padding:6px 0;">${escapeHtml(c.name)}</td><td>${c.quantity}</td><td>${fmtMoney(c.total)}</td></tr>`).join('')}</tbody>
+      </table>
+      <div class="online-calc-box" style="margin-top:12px;">
+        <div class="online-calc-row"><span>إجمالي الأصناف:</span><span>${fmtMoney(total)} ج.م</span></div>
+        <div class="online-calc-row"><span>المقدم المسدد:</span><span>${fmtMoney(advance)} ج.م</span></div>
+        <div class="online-calc-row remaining"><span>المتبقي للتحصيل:</span><span>${fmtMoney(remaining)} ج.م</span></div>
+      </div>
+    `;
+  } else {
+    const paymentMethod = $('#c_payment_direct').value;
+    $('#reviewModalTitle').textContent = 'مراجعة فاتورة البيع المباشر';
+    $('#reviewBody').innerHTML = `
+      <p><b>نوع العملية:</b> <span class="badge badge-brand">بيع مباشر (فاتورة نهائية)</span></p>
+      <p><b>العميل:</b> ${escapeHtml(name || 'عميل مباشر')}</p>
+      <p><b>الهاتف:</b> ${escapeHtml(phone1)}${$('#c_phone2').value ? ' / ' + escapeHtml($('#c_phone2').value) : ''}</p>
+      <p><b>وسيلة الدفع:</b> ${escapeHtml(paymentMethod)}</p>
+      <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:13px;">
+        <thead><tr style="text-align:right;color:var(--ink-soft);border-bottom:1px solid #eee;"><th>المنتج</th><th>الكمية</th><th>الإجمالي</th></tr></thead>
+        <tbody>${cart.map(c => `<tr><td style="padding:6px 0;">${escapeHtml(c.name)}</td><td>${c.quantity}</td><td>${fmtMoney(c.total)}</td></tr>`).join('')}</tbody>
+      </table>
+      <div style="text-align:left;font-weight:800;font-size:17px;color:var(--brand);margin-top:10px;">الإجمالي الكلي: ${fmtMoney(total)} ج.م</div>
+    `;
+  }
 
-      <br/>
+  openModal('reviewModal');
+});
 
-      <!-- Existing products list -->
-      <div class="add-product-card">
-        <div class="add-product-title">📦 المنتجات الحالية</div>
-        <div id="adminProductsList">
-          <div class="empty-state">
-            <div class="empty-state-icon">📦</div>
-            <div class="empty-state-text">جاري التحميل...</div>
-          </div>
+$('#confirmInvoiceBtn').addEventListener('click', async () => {
+  if (isSubmittingInvoice) return;
+  isSubmittingInvoice = true;
+  const btn = $('#confirmInvoiceBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جارِ الحفظ...';
+  showLoading('جارِ حفظ المعاملة على السحابة وتحديث المخزون...');
+
+  try {
+    const result = await processSaleTransaction();
+    closeModal('reviewModal');
+    showFinalInvoice(result.invoice);
+
+    cart = [];
+    renderCart();
+    $('#c_name').value = '';
+    $('#c_phone1').value = '';
+    $('#c_phone2').value = '';
+    $('#c_address').value = '';
+    $('#c_advance').value = '';
+    $('#c_type').value = 'retail';
+    $('#productPreviewCard').classList.add('hidden');
+    updateOnlineCalculations();
+
+    if (result.invoice.isOnline) {
+      showToast('تم إرسال طلب الأونلاين (عرض أسعار) للمراجعة الإدارية بنجاح.', 'success');
+    } else {
+      showToast('تم حفظ الفاتورة والمبيعات بنجاح على قاعدة البيانات.', 'success');
+    }
+
+    await loadProductsCache();
+    await loadMySalesFromCloud(currentRange);
+  } catch (err) {
+    showToast(friendlyError(err), 'error');
+  } finally {
+    hideLoading();
+    isSubmittingInvoice = false;
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> تأكيد وإصدار';
+  }
+});
+
+async function processSaleTransaction() {
+  const currentUser = auth.currentUser;
+  if (!currentUser) throw new Error('جلسة الدخول منتهية، يرجى إعادة تسجيل الدخول للربط بالسحابة.');
+  const sellerId = currentUser.uid;
+
+  const isOnline = currentPosMode === 'online';
+  const name = $('#c_name').value.trim() || (isOnline ? 'عميل أونلاين' : 'عميل مباشر');
+  const phone1 = $('#c_phone1').value.trim();
+  const phone2 = $('#c_phone2').value.trim();
+  const type = $('#c_type').value;
+  const items = cart.map(c => ({ ...c }));
+  const total = items.reduce((s, c) => s + c.total, 0);
+
+  const paymentMethod = isOnline ? $('#c_payment_online').value : $('#c_payment_direct').value;
+  const address = isOnline ? $('#c_address').value.trim() : null;
+  const advance = isOnline ? Number($('#c_advance').value) : total;
+  const remaining = isOnline ? Math.max(0, total - advance) : 0;
+  
+  const orderStatus = isOnline ? 'pending_review' : 'completed';
+  const paymentStatus = isOnline ? (advance > 0 ? 'partial' : 'unpaid') : 'paid';
+  const invoiceType = isOnline ? 'ONLINE_QUOTATION' : 'SALE_INVOICE';
+
+  const nowDate = new Date();
+  const dateStr = nowDate.getFullYear().toString() +
+    String(nowDate.getMonth() + 1).padStart(2, '0') +
+    String(nowDate.getDate()).padStart(2, '0');
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const prefix = isOnline ? 'ONL' : 'BND';
+  const invoiceId = `${prefix}-${dateStr}-${randomSuffix}`;
+
+  const normalizedItems = items.map((it, idx) => ({
+    saleId: `${invoiceId}_item_${idx}`,
+    productCode: it.code,
+    productName: it.name,
+    quantity: it.quantity,
+    unitPrice: it.unitPrice,
+    total: it.total
+  }));
+
+  const invoiceRecord = {
+    invoiceId,
+    sellerId: sellerId,
+    userId: sellerId,
+    sellerName: currentSeller.displayName || currentSeller.username,
+    isOnline,
+    orderStatus,
+    paymentStatus,
+    invoiceType,
+    customerName: name,
+    customerPhone: phone1,
+    customerPhone2: phone2 || null,
+    customerType: type,
+    address: address || null,
+    paymentMethod,
+    advancePaid: advance,
+    remainingAmount: remaining,
+    items: normalizedItems,
+    subtotal: total,
+    total,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  const salesRecords = normalizedItems.map(s => ({
+    saleId: s.saleId,
+    invoiceId,
+    sellerId: sellerId,
+    userId: sellerId,
+    sellerName: currentSeller.displayName || currentSeller.username,
+    isOnline,
+    orderStatus,
+    paymentStatus,
+    customerName: name,
+    customerPhone: phone1,
+    customerPhone2: phone2 || null,
+    customerType: type,
+    address: address || null,
+    paymentMethod,
+    productCode: s.productCode,
+    productName: s.productName,
+    quantity: s.quantity,
+    unitPrice: s.unitPrice,
+    total: s.total,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }));
+
+  const batch = db.batch();
+
+  for (const it of items) {
+    const prodRef = db.collection('products').doc(it.code);
+    const pSnap = await prodRef.get();
+    if (pSnap.exists) {
+      const currentStock = Number(pSnap.data().quantity) || 0;
+      if (currentStock < it.quantity) {
+        throw new Error(`الكمية المطلوبة من (${it.name}) غير متوفرة بالمخزون`);
+      }
+      batch.update(prodRef, {
+        quantity: currentStock - it.quantity,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+  }
+
+  const invoiceRef = db.collection('invoices').doc(invoiceId);
+  batch.set(invoiceRef, invoiceRecord);
+
+  salesRecords.forEach(s => {
+    const saleRef = db.collection('sales').doc(s.saleId);
+    batch.set(saleRef, s);
+  });
+
+  await batch.commit();
+
+  return {
+    invoice: {
+      ...invoiceRecord,
+      id: invoiceId,
+      createdAt: new Date()
+    }
+  };
+}
+
+// =====================================================================
+// INVOICE & QUOTATION RENDERING
+// مع التنسيق المتقن المطلوب بدقة وفق الترتيب:
+// 1. التاريخ والوقت
+// 2. اسم العميل
+// 3. رقم الهاتف
+// 4. اسم البائع
+// 5. جدول المنتجات
+// 6. وسيلة الدفع وإجمالي المبلغ
+// =====================================================================
+let lastInvoice = null;
+
+function showFinalInvoice(inv) {
+  lastInvoice = inv;
+  const isOnline = inv.isOnline === true;
+  const isQuotation = (inv.invoiceType === 'ONLINE_QUOTATION' || inv.orderStatus === 'pending_review') && isOnline;
+
+  $('#finalModalTitle').textContent = isQuotation ? 'طلب أونلاين (عرض أسعار)' : 'فاتورة مبيعات معتمدة';
+
+  const rows = (inv.items || []).map((it, idx) => `
+    <tr style="border-bottom:1px solid #EEF0F2;">
+      <td style="padding:8px 6px;text-align:center;color:#5C6B7A;font-weight:700;">${idx + 1}</td>
+      <td style="padding:8px 6px;"><b>${escapeHtml(it.productName || it.name)}</b></td>
+      <td style="padding:8px 6px;font-family:monospace;color:#5C6B7A;font-size:11.5px;">${escapeHtml(it.productCode || it.code)}</td>
+      <td style="padding:8px 6px;text-align:center;font-weight:700;">${it.quantity}</td>
+      <td style="padding:8px 6px;text-align:left;">${fmtMoney(it.unitPrice)}</td>
+      <td style="padding:8px 6px;text-align:left;font-weight:800;color:#B23A2E;">${fmtMoney(it.total)}</td>
+    </tr>`).join('');
+
+  const shippingFees = Number(inv.shippingFees) || 0;
+  const finalTotal = isOnline && inv.finalTotal ? Number(inv.finalTotal) : (Number(inv.total) + shippingFees);
+  const remainingDue = isOnline && inv.remainingAmount != null ? Number(inv.remainingAmount) : Math.max(0, finalTotal - (Number(inv.advancePaid) || 0));
+
+  const statusAlert = isQuotation ? `
+    <div class="quotation-alert">
+      <b><i class="fa-solid fa-clock"></i> عرض أسعار — طلب قيد المراجعة الإدارية</b><br>
+      هذا المستند ليس فاتورة نهائية، والدفع لم يكتمل بعد لحين اعتماد الإدارة وإضافة مصاريف التوصيل.
+    </div>` : '';
+
+  $('#finalInvoiceBody').innerHTML = `
+  <div id="finalInvoicePrintArea" style="font-family:'Tajawal','Cairo',sans-serif;padding:12px;direction:rtl;text-align:right;background:#fff;color:#1B2430;">
+    
+    <!-- رأس الفاتورة -->
+    <div style="text-align:center;padding-bottom:12px;border-bottom:2px solid #B23A2E;margin-bottom:14px;">
+      <h2 style="color:#B23A2E;margin:0;font-size:20px;font-weight:800;">بندورة للأكسسوارات</h2>
+      <div style="font-size:12px;color:#5C6B7A;margin-top:3px;">
+        ${isQuotation ? 'عرض أسعار طلب أونلاين' : 'فاتورة مبيعات رسمية'} — رقم: <b style="font-family:monospace;color:#1B2430;">${escapeHtml(inv.invoiceId || inv.id)}</b>
+      </div>
+      ${isQuotation ? '<div style="display:inline-block;margin-top:6px;padding:4px 10px;background:#FFF3CD;color:#856404;border:1px dashed #C77C11;border-radius:6px;font-size:11.5px;font-weight:800;">عرض أسعار — ليس فاتورة نهائية</div>' : ''}
+    </div>
+
+    ${statusAlert}
+
+    <!-- بيانات الفاتورة والعميل بالترتيب المحدد بدقة -->
+    <div style="background:#FAFBFC;border:1px solid #E4E8EC;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.9;">
+      <div><b style="color:#5C6B7A;">تاريخ الفاتورة والوقت:</b> <span style="font-weight:700;color:#1B2430;">${fmtDate(inv.createdAt)} — ${fmtTime(inv.createdAt)}</span></div>
+      <div><b style="color:#5C6B7A;">اسم العميل:</b> <span style="font-weight:700;color:#1B2430;">${escapeHtml(inv.customerName || 'عميل نقدي')}</span></div>
+      <div><b style="color:#5C6B7A;">رقم الهاتف:</b> <span style="font-weight:700;font-family:monospace;color:#1B2430;">${escapeHtml(inv.customerPhone || '—')}${inv.customerPhone2 ? ' / ' + escapeHtml(inv.customerPhone2) : ''}</span></div>
+      <div><b style="color:#5C6B7A;">اسم البائع:</b> <span style="font-weight:700;color:#1B2430;">${escapeHtml(inv.sellerName || '—')}</span></div>
+      ${isOnline && inv.address ? `<div><b style="color:#5C6B7A;">عنوان التوصيل:</b> <span style="font-weight:600;color:#1B2430;">${escapeHtml(inv.address)}</span></div>` : ''}
+    </div>
+
+    <!-- جدول المنتجات بشكل منسق -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:12.5px;">
+      <thead>
+        <tr style="background:#F1F3F5;border-bottom:2px solid #D6DCE1;color:#1B2430;text-align:right;">
+          <th style="padding:8px 6px;width:24px;text-align:center;">#</th>
+          <th style="padding:8px 6px;">الصنف</th>
+          <th style="padding:8px 6px;">الكود</th>
+          <th style="padding:8px 6px;text-align:center;">الكمية</th>
+          <th style="padding:8px 6px;text-align:left;">سعر الوحدة</th>
+          <th style="padding:8px 6px;text-align:left;">الإجمالي</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+
+    <!-- أسفل الجدول: وسيلة الدفع وإجمالي المبلغ -->
+    <div style="background:#FAFBFC;border:1.5px solid #E4E8EC;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;border-bottom:1px solid #EEF0F2;">
+        <span style="color:#5C6B7A;font-weight:700;">وسيلة الدفع:</span>
+        <span style="font-weight:800;color:#1B2430;">${escapeHtml(inv.paymentMethod || 'نقدي')}</span>
+      </div>
+      ${isOnline && inv.advancePaid != null ? `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;">
+          <span style="color:#5C6B7A;">المقدم المسدد:</span>
+          <span style="font-weight:700;color:#1E8A5F;">${fmtMoney(inv.advancePaid)} ج.م</span>
+        </div>
+        ${shippingFees > 0 ? `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13px;">
+          <span style="color:#5C6B7A;">مصاريف الشحن والتوصيل:</span>
+          <span style="font-weight:700;color:#1B2430;">${fmtMoney(shippingFees)} ج.م</span>
+        </div>` : ''}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;font-size:13.5px;color:#B23A2E;font-weight:800;">
+          <span>المتبقي للتحصيل عند التسليم:</span>
+          <span>${fmtMoney(remainingDue)} ج.م</span>
+        </div>
+      ` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;margin-top:6px;border-top:1.5px dashed #D6DCE1;font-size:16px;font-weight:800;color:#B23A2E;">
+        <span>إجمالي المبلغ:</span>
+        <span>${fmtMoney(finalTotal)} ج.م</span>
+      </div>
+    </div>
+
+    <!-- تذييل الفاتورة ورسالة الشكر -->
+    <div style="text-align:center;padding-top:8px;border-top:1px solid #EEF0F2;">
+      <p style="margin:2px 0;font-size:12px;font-weight:700;color:#1B2430;">شكراً لتعاملكم مع بندورة للأكسسوارات ❤️</p>
+      <p style="margin:2px 0;font-size:11px;color:#5C6B7A;">نسعد دائماً بخدمتكم ونتمنى لكم يوماً سعيداً ✨</p>
+      <div class="app-copyright" style="font-size:10.5px;color:#A0AEC0;margin-top:6px;">Copyright © Abdelmoneim</div>
+    </div>
+  </div>`;
+
+  openModal('finalInvoiceModal');
+}
+
+$('#finalPrintBtn').addEventListener('click', () => {
+  const w = window.open('', '_blank');
+  w.document.write(`<html dir="rtl"><head><title>فاتورة</title><style>body{font-family:sans-serif;padding:20px;}</style></head><body>${$('#finalInvoicePrintArea').outerHTML}</body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(() => w.print(), 300);
+});
+
+$('#finalPdfBtn').addEventListener('click', async () => {
+  showLoading('جارِ إنشاء ملف PDF الفاتورة...');
+  try {
+    const el = $('#finalInvoicePrintArea');
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: true });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgW = 190;
+    const imgH = canvas.height * imgW / canvas.width;
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, imgW, imgH);
+    pdf.save(`فاتورة_${lastInvoice.invoiceId || lastInvoice.id}.pdf`);
+  } catch (err) {
+    showToast('تعذر إنشاء ملف PDF', 'error');
+  } finally {
+    hideLoading();
+  }
+});
+
+// =====================================================================
+// إرسال الفاتورة PDF عبر واتساب مع رسالة شكر احترافية
+// =====================================================================
+$('#finalWaBtn').addEventListener('click', async () => {
+  if (!lastInvoice) return;
+  const rawPhone = lastInvoice.customerPhone || '';
+  const cleanPhone = formatWhatsAppPhone(rawPhone);
+  
+  if (!cleanPhone || cleanPhone.length < 8) {
+    return showToast('رقم هاتف العميل غير صحيح أو غير متوافق مع واتساب', 'error');
+  }
+
+  showLoading('جارِ تجهيز ملف PDF الفاتورة ورسالة الشكر...');
+
+  try {
+    const isOnline = lastInvoice.isOnline === true;
+    const shippingFees = Number(lastInvoice.shippingFees) || 0;
+    const finalTotal = isOnline && lastInvoice.finalTotal ? Number(lastInvoice.finalTotal) : (Number(lastInvoice.total) + shippingFees);
+    const remainingDue = isOnline && lastInvoice.remainingAmount != null ? Number(lastInvoice.remainingAmount) : Math.max(0, finalTotal - (Number(lastInvoice.advancePaid) || 0));
+
+    // رسالة الشكر الاحترافية
+    const thankYouLines = [
+      `عميلنا العزيز / ${lastInvoice.customerName || 'عميلنا المميز'} 🌹`,
+      `شكراً لثقتكم واختياركم *بندورة للأكسسوارات* ❤️`,
+      `يسعدنا دائماً خدمتكم، ونتمنى أن تنال منتجاتنا إعجابكم ورضاكم التام.`,
+      ``,
+      `📄 *ملخص الفاتورة:*`,
+      `▪ رقم الفاتورة: ${lastInvoice.invoiceId || lastInvoice.id}`,
+      `▪ التاريخ والوقت: ${fmtDate(lastInvoice.createdAt)} (${fmtTime(lastInvoice.createdAt)})`,
+      `▪ وسيلة الدفع: ${lastInvoice.paymentMethod || 'نقدي'}`,
+      `▪ إجمالي المبلغ: ${fmtMoney(finalTotal)} ج.م`
+    ];
+
+    if (isOnline) {
+      thankYouLines.push(`▪ المقدم المسدد: ${fmtMoney(lastInvoice.advancePaid)} ج.م`);
+      if (shippingFees > 0) thankYouLines.push(`▪ مصاريف الشحن: ${fmtMoney(shippingFees)} ج.م`);
+      thankYouLines.push(`▪ المتبقي عند الاستلام: ${fmtMoney(remainingDue)} ج.م`);
+    }
+
+    thankYouLines.push(``);
+    thankYouLines.push(`📎 مرفق لكم ملف الفاتورة الرسمي (PDF) بكافة التفاصيل.`);
+    thankYouLines.push(`نسعد دائماً بتواصلكم معنا، ويومكم سعيد! ✨`);
+
+    const fullMessage = thankYouLines.join('\n');
+
+    // توليد الـ PDF من حاوية الفاتورة
+    const el = $('#finalInvoicePrintArea');
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true, allowTaint: true });
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgW = 190;
+    const imgH = canvas.height * imgW / canvas.width;
+    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, imgW, imgH);
+    
+    const fileName = `فاتورة_${lastInvoice.invoiceId || lastInvoice.id}.pdf`;
+    const pdfBlob = pdf.output('blob');
+    const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+    hideLoading();
+
+    // 1. تجربة مشاركة ملف الـ PDF مباشرة مع واتساب (في الهواتف والمتصفحات الداعمة)
+    if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+      try {
+        await navigator.share({
+          files: [pdfFile],
+          title: `فاتورة بندورة للأكسسوارات - ${lastInvoice.invoiceId || lastInvoice.id}`,
+          text: fullMessage
+        });
+        showToast('تمت مشاركة الفاتورة PDF ورسالة الشكر بنجاح', 'success');
+        return;
+      } catch (shareErr) {
+        if (shareErr.name === 'AbortError') return; // قام المستخدم بالإلغاء يدوياً
+        console.warn('Native sharing skipped, using direct link:', shareErr);
+      }
+    }
+
+    // 2. البديل للأجهزة الأخرى (الكمبيوتر أو المتصفحات التي لا تدعم إرفاق الملفات برمجياً):
+    // تحميل ملف الـ PDF للجهاز وفتح محادثة واتساب العميل متضمنة رسالة الشكر وتفاصيل الفاتورة
+    pdf.save(fileName);
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(fullMessage)}`;
+    window.open(waUrl, '_blank');
+    showToast('تم تنزيل الفاتورة PDF وفتح محادثة واتساب لإرفاقها مع رسالة الشكر ✨', 'success');
+
+  } catch (err) {
+    hideLoading();
+    console.error('WhatsApp PDF error:', err);
+    showToast('حدث خطأ أثناء إعداد ملف الفاتورة PDF', 'error');
+  }
+});
+
+// =====================================================================
+// MY SALES (QUERIED FROM CLOUD VIA SELLER_ID)
+// =====================================================================
+let currentRange = 'today';
+let mySalesAll = [];
+
+$$('.chip[data-range]').forEach(chip => {
+  chip.addEventListener('click', () => {
+    $$('.chip[data-range]').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    currentRange = chip.dataset.range;
+    loadMySalesFromCloud(currentRange);
+  });
+});
+
+function rangeToDates(range) {
+  const now = new Date();
+  let from, to = new Date();
+  if (range === 'today') {
+    from = new Date(); from.setHours(0, 0, 0, 0);
+  } else if (range === 'yesterday') {
+    from = new Date(now); from.setDate(from.getDate() - 1); from.setHours(0, 0, 0, 0);
+    to = new Date(from); to.setHours(23, 59, 59, 999);
+  } else if (range === '7days') {
+    from = new Date(now); from.setDate(from.getDate() - 6); from.setHours(0, 0, 0, 0);
+  } else if (range === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+  } else {
+    from = new Date(Date.now() - RETENTION_MS);
+  }
+  return { from, to };
+}
+
+async function loadMySalesFromCloud(range) {
+  const currentUser = auth.currentUser;
+  if (!currentUser) return;
+  const sellerUid = currentUser.uid;
+
+  $('#mySalesList').innerHTML = '<div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>';
+  const { from, to } = rangeToDates(range);
+
+  try {
+    const snap = await db.collection('sales')
+      .where('sellerId', '==', sellerUid)
+      .limit(600)
+      .get();
+
+    const pool = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    pool.sort((a, b) => (tsToDate(b.createdAt)?.getTime() || 0) - (tsToDate(a.createdAt)?.getTime() || 0));
+
+    mySalesAll = pool.filter(s => {
+      const d = tsToDate(s.createdAt);
+      if (!d) return true;
+      const time = d.getTime();
+      return time >= from.getTime() && time <= to.getTime();
+    });
+
+    renderMySales(mySalesAll);
+    updateSummaryCards(pool);
+  } catch (err) {
+    console.error('Cloud sales retrieval trace:', err);
+    $('#mySalesList').innerHTML = `<div class="empty-state"><i class="fa-solid fa-cloud-arrow-down"></i>تعذر جلب المبيعات من السحابة حالياً: ${friendlyError(err)}</div>`;
+  }
+}
+
+$('#btnApplyMyFilter').addEventListener('click', () => {
+  let list = [...mySalesAll];
+  const cust = $('#f_myCustomer').value.trim().toLowerCase();
+  const prod = $('#f_myProduct').value.trim().toLowerCase();
+  const inv = $('#f_myInvoice').value.trim().toLowerCase();
+  const channel = $('#f_myChannel').value;
+
+  if (cust) list = list.filter(s => (s.customerName || '').toLowerCase().includes(cust));
+  if (prod) list = list.filter(s => (s.productName || '').toLowerCase().includes(prod) || (s.productCode || '').toLowerCase().includes(prod));
+  if (inv) list = list.filter(s => (s.invoiceId || '').toLowerCase().includes(inv));
+  if (channel === 'direct') list = list.filter(s => !s.isOnline);
+  if (channel === 'online') list = list.filter(s => s.isOnline);
+
+  renderMySales(list);
+});
+
+function renderMySales(list) {
+  if (!list.length) {
+    $('#mySalesList').innerHTML = `<div class="empty-state"><i class="fa-solid fa-receipt"></i>لا توجد مبيعات مسجلة في هذه الفترة</div>`;
+    return;
+  }
+  $('#mySalesList').innerHTML = list.map(s => {
+    const isPending = s.orderStatus === 'pending_review';
+    const isApproved = s.orderStatus === 'approved' || s.orderStatus === 'confirmed';
+    const isReturned = s.orderStatus === 'returned';
+    const isOnline = s.isOnline === true;
+
+    let statusBadge = isOnline
+      ? (isApproved ? '<span class="badge badge-approved">معتمد</span>' : '<span class="badge badge-review">عرض أسعار</span>')
+      : (isReturned ? '<span class="badge badge-warn">مرتجع</span>' : '<span class="badge badge-brand">مباشر</span>');
+
+    return `
+    <div class="sale-row ${isPending ? 'status-pending-review' : ''} ${isApproved ? 'status-approved' : ''} ${isReturned ? 'status-returned' : ''}">
+      <div class="top">
+        <span>${escapeHtml(s.productName)}</span>
+        <span>${fmtMoney(s.total)} ج.م</span>
+      </div>
+      <div class="mid">
+        ${escapeHtml(s.customerName || '')} · 
+        ${statusBadge} · 
+        كمية: ${s.quantity} · 
+        ${escapeHtml(s.paymentMethod || 'نقدي')}
+      </div>
+      <div class="bottom">
+        <div>
+          <b style="font-family:monospace;">${escapeHtml(s.invoiceId || '')}</b>
+          <div style="font-size:11px;color:#8C9BA5;margin-top:2px;">${fmtDate(s.createdAt)} - ${fmtTime(s.createdAt)}</div>
+        </div>
+        <div>
+          <button class="btn btn-sm btn-ghost" onclick="openInvoiceFromSales('${s.invoiceId}')" title="عرض المستند"><i class="fa-solid fa-file-lines"></i> المستند</button>
         </div>
       </div>
-    </div>
-  </div>
+    </div>`;
+  }).join('');
+}
 
-</div><!-- /admin-dashboard-page -->
+function updateSummaryCards(pool) {
+  const todayFrom = new Date();
+  todayFrom.setHours(0, 0, 0, 0);
 
-<!-- ====== ORDER DETAIL MODAL ====== -->
-<div class="modal-overlay" id="orderDetailModal">
-  <div class="modal" style="max-width:680px;">
-    <div class="modal-header">
-      <div class="modal-title">📄 تفاصيل الطلب</div>
-      <button class="modal-close" onclick="closeDetailModal()">✕</button>
-    </div>
-    <div id="orderDetailContent" class="order-detail"></div>
-  </div>
-</div>
+  const monthFrom = new Date();
+  monthFrom.setDate(1);
+  monthFrom.setHours(0, 0, 0, 0);
 
-<!-- SCRIPT -->
-<script src="app.js"></script>
+  const todaySales = pool.filter(s => {
+    const d = tsToDate(s.createdAt);
+    return d && d >= todayFrom && s.orderStatus !== 'returned';
+  });
+
+  const monthSales = pool.filter(s => {
+    const d = tsToDate(s.createdAt);
+    return d && d >= monthFrom && s.orderStatus !== 'returned';
+  });
+
+  $('#sumTodayCount').textContent = todaySales.length;
+  $('#sumTodayRevenue').textContent = fmtMoney(todaySales.reduce((s, x) => s + (Number(x.total) || 0), 0));
+  $('#sumMonthCount').textContent = monthSales.length;
+  $('#sumMonthRevenue').textContent = fmtMoney(monthSales.reduce((s, x) => s + (Number(x.total) || 0), 0));
+}
+
+window.openInvoiceFromSales = async (invoiceId) => {
+  if (!invoiceId) return;
+  showLoading('جارِ فتح الفاتورة...');
+  try {
+    const doc = await db.collection('invoices').doc(invoiceId).get();
+    hideLoading();
+    if (doc.exists) {
+      showFinalInvoice({ id: doc.id, ...doc.data() });
+    } else {
+      showToast('المستند غير موجود أو تم حذفه بواسطة الإدارة', 'warn');
+    }
+  } catch (err) {
+    hideLoading();
+    showToast('حدث خطأ أثناء تحميل الفاتورة', 'error');
+  }
+};
+
+$('#btnRefreshSales').addEventListener('click', () => {
+  loadMySalesFromCloud(currentRange);
+  showToast('تم تحديث البيانات من السحابة بنجاح', 'success');
+});
+
+$('#btnExportMySales').addEventListener('click', () => {
+  if (!mySalesAll.length) return showToast('لا توجد بيانات مبيعات للتصدير', 'warn');
+  const rows = mySalesAll.map(s => ({
+    'رقم الفاتورة/الطلب': s.invoiceId || '',
+    'نوع العملية': s.isOnline ? 'أونلاين' : 'مباشر',
+    'الحالة': s.orderStatus === 'approved' ? 'معتمد' : (s.orderStatus === 'pending_review' ? 'عرض أسعار قيد المراجعة' : (s.orderStatus === 'returned' ? 'مرتجع' : 'مكتمل')),
+    'التاريخ': fmtDate(s.createdAt),
+    'الوقت': fmtTime(s.createdAt),
+    'العميل': s.customerName || '',
+    'هاتف العميل': s.customerPhone || '',
+    'وسيلة الدفع': s.paymentMethod || 'نقدي',
+    'العنوان': s.address || '',
+    'كود المنتج': s.productCode || '',
+    'اسم المنتج': s.productName || '',
+    'الكمية': s.quantity,
+    'سعر الوحدة': s.unitPrice,
+    'الإجمالي': s.total
+  }));
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'مبيعاتي');
+  XLSX.writeFile(wb, `Bandora_MySales_${new Date().toISOString().slice(0, 10)}.xlsx`);
+  showToast('تم تصدير ملف المبيعات بنجاح', 'success');
+});
+
+// Network Listeners
+window.addEventListener('online', () => {
+  $('#syncStatusBadge').className = 'sync-indicator online';
+  $('#syncStatusBadge').innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px;"></i> متصل ومزامن';
+  showToast('تم استعادة الاتصال بالسحابة', 'success');
+  loadProductsCache();
+  loadMySalesFromCloud(currentRange);
+});
+
+window.addEventListener('offline', () => {
+  $('#syncStatusBadge').className = 'sync-indicator offline';
+  $('#syncStatusBadge').innerHTML = '<i class="fa-solid fa-circle" style="font-size:7px;"></i> غير متصل';
+  showToast('أنت غير متصل بالإنترنت حالياً.', 'warn');
+});
+</script>
 </body>
 </html>
